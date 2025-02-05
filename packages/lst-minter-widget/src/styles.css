@@ -1,0 +1,201 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400&display=swap");
+
+:root {
+  --light-bg: #f4f4f8; /* Light background color */
+  --dark-bg: #1a1f2e; /* Dark background color */
+  --black: #000000; /* Black text color */
+  --white: #ffffff; /* White text color */
+  --primary: #ff8c00; /* Orange color (primary theme) */
+  --secondary: #999999; /* Secondary text color */
+  --vault-dark: #333333; /* Dark color for buttons/text */
+  --vault-light: #ffb84c; /* Lighter orange for hover effect */
+}
+
+.container {
+  width: 100%;
+  font-family: "Space Grotesk", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.card {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #1a1f2e; /* Dark card background */
+  border-radius: 12px; /* Rounded edges */
+  padding: 1.5rem 1rem; /* Inner spacing */
+  display: flex;
+  gap: 1rem; /* Space between elements */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
+  max-width: 346px; /* Optional: Restrict width to look like a card */
+  min-width: 345px;
+  margin-top: 1rem;
+}
+
+.input-token-amount-inner {
+  background-color: var(--dark-bg);
+  border-radius: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  gap: 0.5rem;
+  color: var(--black);
+}
+
+.big-token-input {
+  background-color: var(--dark-bg);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  font-family: "Courier New", monospace; /* Monospace font for numbers */
+  color: var(--white);
+  position: relative;
+}
+
+.big-token-input input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.big-button {
+  background: var(--primary); /* Orange background */
+  color: var(--dark-bg); /* Dark text color */
+  border: 1px solid var(--primary); /* Orange border */
+  width: 96%;
+  border-radius: 8px; /* Rounded corners */
+  padding: 0.75rem 1.5rem; /* Padding inside the button */
+  font-size: 1rem; /* Larger font size */
+  font-weight: bold; /* Bold text */
+  cursor: pointer; /* Pointer cursor on hover */
+  position: relative;
+  flex-grow: 1;
+}
+
+.big-button:disabled {
+  background: var(--secondary); /* Light gray background */
+  color: var(--dark-bg); /* Dark text color */
+  border: 1px solid var(--secondary); /* Light gray border */
+  cursor: not-allowed; /* Not-allowed cursor on hover */
+}
+
+.max-button {
+  background: rgba(255, 140, 0, 0.3); /* Semi-transparent orange */
+  color: var(--primary);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid var(--primary);
+}
+
+.max-button:hover {
+  background: rgba(255, 140, 0, 0.5);
+}
+
+/* Input field (removes number spinner arrows) */
+.input-amount {
+  appearance: textfield; /* Standard */
+  -moz-appearance: textfield; /* Firefox */
+  -webkit-appearance: none; /* Safari and Chrome */
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-size: 1rem;
+  width: 100%;
+  text-align: left;
+  font-family: "Courier New", monospace;
+  padding: 0.5rem;
+}
+
+/* Remove spinners in WebKit browsers */
+.input-amount::-webkit-outer-spin-button,
+.input-amount::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Main input container */
+.input-token-amount {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background-color: var(--dark-bg);
+  border: none; /* Remove white border */
+  border-radius: 8px;
+  padding: 0.5rem;
+  width: 100%;
+  position: relative;
+}
+
+/* Token symbol & icon container moved to the right */
+.token-symbol-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  right: 10px;
+}
+.token-symbol {
+  font-size: 0.75rem;
+  color: var(--primary);
+}
+
+/* Token icon (SVG/Image inside container) */
+.token-icon-container > svg,
+.token-icon-container > img {
+  width: 100%;
+  height: 100%;
+}
+
+.editable {
+  cursor: pointer;
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
+  justify-content: center;
+  gap: 0.05rem;
+  width: 100%;
+}
+
+.input-section .balance {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 95%;
+  white-space: nowrap;
+  margin-bottom: 0.3rem;
+}
+
+.input-section .input {
+  margin: 0 auto; /* Center the input horizontally */
+}
+
+.balance-amount {
+  font-family: "Courier New", monospace;
+  text-align: right;
+}
+
+.spread-input {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}

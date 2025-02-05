@@ -1,0 +1,23 @@
+{
+  "name": "lst-minter-widget",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach --all run build",
+    "dev": "yarn workspace example run dev",
+		"api": "yarn workspace @the-vault/lst-minter-api run start"
+  },
+  "packageManager": "yarn@4.6.0",
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "bignumber.js": "^9.1.2",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "vite-plugin-svgr": "^4.3.0"
+  }
+}
