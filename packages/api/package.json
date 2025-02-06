@@ -1,12 +1,14 @@
 {
   "name": "@the-vault/lst-minter-api",
   "version": "1.0.0",
+  "packageManager": "yarn@4.6.0",
   "description": "",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "build": "tsc",
-		"start": "tsc && node ./dist/index.js"
+    "start": "tsc && node ./dist/index.js",
+    "postinstall": "patch-package"
   },
   "private": true,
   "dependencies": {
@@ -28,10 +30,12 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@thevault/directed-stake": "^1.1.2",
     "@types/bn.js": "^5",
     "fastify-tsconfig": "^3.0.0",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
   }
 }
