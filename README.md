@@ -42,6 +42,8 @@ You should be able to mint an LST with the widget, shown in the example app at h
 The first step is to deploy the API server. You can set the CORs origin to the domain of your app in the
 environment variable `CORS_ORIGIN`.
 
+A Dockerfile is included in the api package if you would like to run the API in a container.
+
 Then you can include the widget in your app. Import the package locally or from npm
 
 ```bash
@@ -49,8 +51,6 @@ yarn add @the-vault/lst-minter-widget
 ```
 
 Then include the widget in your app. Here is an example of how to use the widget in a React app that includes the Solana Wallet Adapter.
-
-```
 
 ```tsx
 <LstMinterWidget
@@ -65,7 +65,7 @@ Then include the widget in your app. Here is an example of how to use the widget
         }
         api={api}
         processing={preparing || processing}
-        mint={"sandyYpbDQoPNP6gAhtaeXs6wNSp6xbi1hioka9zFP4"}
+        mint={"nordicHi2uzn7pMe4wCUzTHQXeU2N42ViDVtTrahTRn"}
         address={publicKey?.toBase58()}/>
 ```
 
@@ -107,3 +107,7 @@ import "@the-vault/lst-minter-widget/styles.css";
 After this line you can import additional .css that overrides these styles. Or, you can copy the file and 
 modify it to your liking. If you are only interested in adapting the colors, there are vairables in the root
 element at the top of the file.
+
+## Demo
+You can see the widget in action at https://lst-demo.surge.sh/ The API is deployed at
+https://lstminter.boundlessendeavors.llc, which you can use during bringup for your widget instance.

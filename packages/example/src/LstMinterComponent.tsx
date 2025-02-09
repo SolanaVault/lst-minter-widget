@@ -90,7 +90,7 @@ export const LstMinterComponent = () => {
       }}
     >
       <div style={{ color: "white", fontSize: "36px" }}>Stake SOL with </div>
-      <div style={{ color: "#FF8C00", fontSize: "36px" }}>Sandy Validator</div>
+      <div style={{ color: "#FF8C00", fontSize: "36px" }}>Grid Systems Validator</div>
       <LstMinterWidget
         onButtonPress={() => {
           setPreparing(true);
@@ -103,7 +103,7 @@ export const LstMinterComponent = () => {
         }
         api={api}
         processing={preparing || processing}
-        mint={"sandyYpbDQoPNP6gAhtaeXs6wNSp6xbi1hioka9zFP4"}
+        mint={"gridBR1TSJcV1JjAEE9g7ouoiVaEgDNT3dhY6n9oKQq"}
         address={publicKey?.toBase58()}
       />
     </div>

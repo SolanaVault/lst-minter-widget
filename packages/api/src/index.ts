@@ -20,7 +20,8 @@ import { removeBigint } from "./utils.js";
 dotenv.config();
 
 const fastify = Fastify({ logger: true });
-const port = 3001;
+const host = process.env.HOST || "localhost";
+const port = parseInt(process.env.PORT) || 3001;
 const rpcUrl = process.env.RPC_URL;
 if (!rpcUrl) {
   throw new Error("RPC_URL is required");
@@ -150,7 +151,7 @@ async function startServer() {
       origin: process.env.CORS_ORIGIN,
     });
 
-    await fastify.listen({ port });
+    await fastify.listen({ port, host });
     fastify.log.info(`Server listening at http://localhost:${port}`);
   } catch (err) {
     fastify.log.error(err);
