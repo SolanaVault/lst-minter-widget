@@ -26,3 +26,18 @@ body {
   font-weight: 400;
   font-style: normal;
 }
+.switch-button {
+  background-color: var(--black);
+  color: var(--white);
+  font-size: 16px;
+  padding: 8px 16px;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s;
+}
+
+.switch-button:hover {
+  background-color: #333;
+  border-color: #888;
+}
