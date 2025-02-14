@@ -10,7 +10,7 @@ export interface Props {
   mint: string;
   api: string;
   onButtonPress: () => void;
-  onTxReady: (txInfo: { message: string; userSolTransfer: string }) => void;
+  onTxReady: (txInfo: { transaction: string; }) => void;
   address: string | undefined;
   processing: boolean;
 }
