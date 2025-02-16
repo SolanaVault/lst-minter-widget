@@ -70,8 +70,11 @@ Then include the widget in your app. Here is an example of how to use the widget
 ```
 
 The mint is the mint address of your The Vault supported LST. The publicKey comes from useWallet.
-The txReady callback provides a serialized transaction and a public key that you need to replace with your 
-own ephemeral key and signer.
+The txReady callback provides a serialized transaction you can sign with the wallet passed in to address and send to the Solana network.
+
+You can add a target attribute to the vote pubkey of your validator, if you prefer to direct stake to your validator and mint vSOL. 
+You must use the vSOL mint address if you choose to set a target. If you set the mint to vSOL and do not set the target, 
+the widget will mint undirected vSOL.
 
 Processing is a way you to tell the widget that you are working on the transaction. onButtonPress is called by the widget when 
 a Tx is being built. That is the only way for you to know that the button has been clicked. You can set a timeout while you
@@ -89,5 +92,5 @@ modify it to your liking. If you are only interested in adapting the colors, the
 element at the top of the file.
 
 ## Demo
-You can see the widget in action at https://lst-demo.surge.sh/ The API is deployed at
-https://lstminter.boundlessendeavors.llc, which you can use during bringup for your widget instance.
+You can see the widget in action at https://lst-minter-demo.pages.dev/. The API is deployed at
+https://lstminter.boundlessendeavors.llc, which you can use during bring up for your widget instance.
