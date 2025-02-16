@@ -1,6 +1,6 @@
 {
   "name": "@the-vault/lst-minter-widget",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "The Vault LST minter react widget",
   "type": "module",
   "main": "dist/index.js",
