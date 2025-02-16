@@ -1,0 +1,44 @@
+diff --git a/dist/burnDST.js b/dist/burnDST.js
+index 1f22fb82031997f00839d57470705aa6368bbbc5..4485d5d59cbbeba59cecfa63759e97619b682b5d 100644
+--- a/dist/burnDST.js
++++ b/dist/burnDST.js
+@@ -1,5 +1,6 @@
+ import { makeDSTProgram } from "./makeDSTProgram.js";
+-import { BN } from "@coral-xyz/anchor";
++import anchor from "@coral-xyz/anchor";
++const { BN } = anchor;
+ /**
+  * Burning DST tokens is as follows:
+  *
+diff --git a/dist/idl.js b/dist/idl.js
+index 90cababdddb772d2908957a72a98cbee691ae508..0c654f840a7e7f0801b819faa856e2f11115d5da 100644
+--- a/dist/idl.js
++++ b/dist/idl.js
+@@ -1,3 +1,3 @@
+-import idlRaw from "./idlRaw.json";
++import idlRaw from "./idlRaw.json" assert { type: 'json' };
+ export const idl = idlRaw;
+ //# sourceMappingURL=idl.js.map
+diff --git a/dist/makeDSTProgram.js b/dist/makeDSTProgram.js
+index fac63077b06b6d2ca16d2d52fde01aef0a2870a8..ae9daaa8c3a4bacab8c3648b11743a601f11d4e7 100644
+--- a/dist/makeDSTProgram.js
++++ b/dist/makeDSTProgram.js
+@@ -1,4 +1,5 @@
+-import { Program } from "@coral-xyz/anchor";
++import anchor from "@coral-xyz/anchor";
++const { BN, Program } = anchor;
+ import { idl as dstIdl } from "./idl.js";
+ export const makeDSTProgram = (provider) => {
+     return new Program(dstIdl, provider);
+diff --git a/dist/mintDST.js b/dist/mintDST.js
+index f6bff6481e76d06f4f3f5c4575d7a679c9bfaea5..f9cd2a353b5c5465b7637c25228fe210bc130f5d 100644
+--- a/dist/mintDST.js
++++ b/dist/mintDST.js
+@@ -1,5 +1,6 @@
+ import { makeDSTProgram } from "./makeDSTProgram.js";
+-import { BN } from "@coral-xyz/anchor";
++import anchor from "@coral-xyz/anchor";
++const { BN } = anchor;
+ /**
+  * Minting DST tokens is as follows:
+  *

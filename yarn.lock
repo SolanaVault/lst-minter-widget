@@ -3545,16 +3545,14 @@ __metadata:
     "@solana/spl-stake-pool": "npm:^1.1.8"
     "@solana/spl-token": "npm:^0.4.12"
     "@solana/web3.js": "npm:^1.98.0"
-    "@thevault/directed-stake": "npm:^1.1.2"
-    "@thevault/dst": "npm:^2.0.2"
+    "@thevault/directed-stake": "patch:@thevault/directed-stake@npm%3A1.1.2#~/.yarn/patches/@thevault-directed-stake-npm-1.1.2-a2e460176a.patch"
+    "@thevault/dst": "patch:@thevault/dst@npm%3A2.0.2#~/.yarn/patches/@thevault-dst-npm-2.0.2-c4bb24daa0.patch"
     "@types/bn.js": "npm:^5"
     bn.js: "npm:^5.2.1"
     bs58: "npm:^6.0.0"
     dotenv: "npm:^16.4.7"
     fastify: "npm:^5.2.1"
     fastify-tsconfig: "npm:^3.0.0"
-    patch-package: "npm:^8.0.0"
-    postinstall-postinstall: "npm:^2.1.0"
     typescript: "npm:^5.7.3"
     vite: "npm:^6.1.0"
     zod: "npm:^3.24.1"
@@ -3579,7 +3577,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thevault/directed-stake@npm:^1.1.2":
+"@thevault/directed-stake@npm:1.1.2":
   version: 1.1.2
   resolution: "@thevault/directed-stake@npm:1.1.2"
   dependencies:
@@ -3591,7 +3589,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thevault/dst@npm:^2.0.2":
+"@thevault/directed-stake@patch:@thevault/directed-stake@npm%3A1.1.2#~/.yarn/patches/@thevault-directed-stake-npm-1.1.2-a2e460176a.patch":
+  version: 1.1.2
+  resolution: "@thevault/directed-stake@patch:@thevault/directed-stake@npm%3A1.1.2#~/.yarn/patches/@thevault-directed-stake-npm-1.1.2-a2e460176a.patch::version=1.1.2&hash=b43eab"
+  dependencies:
+    tslib: "npm:^2.7.0"
+  peerDependencies:
+    "@coral-xyz/anchor": "*"
+    "@solana/web3.js": "*"
+  checksum: 10c0/b302df01899e9ce5aa6ef9d65c0b8927ddb2215815697e57b2d0591cb86d75a1480e43fd735e0e4420cb366523ca0c886084315ea0ea4938a1b7f90979f2260d
+  languageName: node
+  linkType: hard
+
+"@thevault/dst@npm:2.0.2":
   version: 2.0.2
   resolution: "@thevault/dst@npm:2.0.2"
   dependencies:
@@ -3602,6 +3612,20 @@ __metadata:
     "@solana/web3.js": "*"
     "@thevault/directed-stake": ^1.1.2
   checksum: 10c0/bbf4818198ddf6cfc9892d356e658ddd701fea6de3ccb34db74991a7ef8e041332fc76c231c567a0830087e164284e0c1f5f876f3f036e72e4d63165014d15ec
+  languageName: node
+  linkType: hard
+
+"@thevault/dst@patch:@thevault/dst@npm%3A2.0.2#~/.yarn/patches/@thevault-dst-npm-2.0.2-c4bb24daa0.patch":
+  version: 2.0.2
+  resolution: "@thevault/dst@patch:@thevault/dst@npm%3A2.0.2#~/.yarn/patches/@thevault-dst-npm-2.0.2-c4bb24daa0.patch::version=2.0.2&hash=7eb03c"
+  dependencies:
+    "@solana/spl-token": "npm:^0.4.8"
+    tslib: "npm:^2.7.0"
+  peerDependencies:
+    "@coral-xyz/anchor": "*"
+    "@solana/web3.js": "*"
+    "@thevault/directed-stake": ^1.1.2
+  checksum: 10c0/322b421a31ecc9386ab41ca12d9fa3956e3dd8b5b922df19fd82758511473b8f3b1237d0503ac74400a2945a9d4b6b6ab1b02d6fab452fe8231872098d6595b9
   languageName: node
   linkType: hard
 
@@ -9192,13 +9216,6 @@ __metadata:
     picocolors: "npm:^1.1.1"
     source-map-js: "npm:^1.2.1"
   checksum: 10c0/c4d90c59c98e8a0c102b77d3f4cac190f883b42d63dc60e2f3ed840f16197c0c8e25a4327d2e9a847b45a985612317dc0534178feeebd0a1cf3eb0eecf75cae4
-  languageName: node
-  linkType: hard
-
-"postinstall-postinstall@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "postinstall-postinstall@npm:2.1.0"
-  checksum: 10c0/70488447292c712afa7806126824d6fe93362392cbe261ae60166d9119a350713e0dbf4deb2ca91637c1037bc030ed1de78d61d9041bf2504513070f1caacdfd
   languageName: node
   linkType: hard
 

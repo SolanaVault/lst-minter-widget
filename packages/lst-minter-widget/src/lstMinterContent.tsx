@@ -10,9 +10,10 @@ export interface Props {
   mint: string;
   api: string;
   onButtonPress: () => void;
-  onTxReady: (txInfo: { message: string; userSolTransfer: string }) => void;
+  onTxReady: (txInfo: { transaction: string; }) => void;
   address: string | undefined;
   processing: boolean;
+  target?: string;
 }
 
 export const LstMinterContent = ({
@@ -22,6 +23,7 @@ export const LstMinterContent = ({
   onTxReady,
   address,
   processing,
+  target
 }: Props) => {
   const { data: dstInfo } = useDstInfo(mint, api);
   const { data: token } = useTokenInfo(dstInfo);
@@ -38,7 +40,7 @@ export const LstMinterContent = ({
     // Call the stake API
     const result = await fetch(
       api +
-        `/stake?address=${address}&mint=${mint}&amount=${amount?.raw}&balance=${balance.sol.amount}`,
+        `/stake?address=${address}&mint=${mint}&amount=${amount?.raw}&balance=${balance.sol.amount}${target ? `&target=${target}` : ""}`,
     );
     return await result.json();
   };

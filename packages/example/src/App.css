@@ -3,4 +3,14 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  --light-bg: #f4f4f8; /* Light background color */
+  --dark-bg: #1a1f2e; /* Dark background color */
+  --black: #000000; /* Black text color */
+  --white: #ffffff; /* White text color */
+  --primary: #ff8c00; /* Orange color (primary theme) */
+  --secondary: #999999; /* Secondary text color */
+  --vault-dark: #333333; /* Dark color for buttons/text */
+  --vault-light: #ffb84c; /* Lighter orange for hover effect */
 }
+
+

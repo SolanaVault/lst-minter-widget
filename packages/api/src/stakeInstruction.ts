@@ -73,15 +73,17 @@ export async function getStakeInstruction(
     .times(stakePoolSummary.totalSupply)
     .div(stakePoolSummary.totalSOL);
 
-  const mintTX = mintDST({
-    provider: { ...provider, connection },
-    dst: dstAddress,
-    dstTokenAccount: lstAta,
-    mintAmount: Number(outputAmount),
-    sourceVsolAccount: vsolAta,
-    owner: payer,
-  });
-  const mintIx = await mintTX.instruction();
-  instructions.push(mintIx);
+  if(mint.toBase58() !== VSOL_MINT)  {
+    const mintTX = mintDST({
+      provider: { ...provider, connection },
+      dst: dstAddress,
+      dstTokenAccount: lstAta,
+      mintAmount: Number(outputAmount),
+      sourceVsolAccount: vsolAta,
+      owner: payer,
+    });
+    const mintIx = await mintTX.instruction();
+    instructions.push(mintIx);
+  }
   return instructions;
 }

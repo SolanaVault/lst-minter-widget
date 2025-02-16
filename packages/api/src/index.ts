@@ -2,11 +2,12 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { z } from "zod";
 import {
+  ComputeBudgetProgram,
   Connection,
   Keypair,
   PublicKey,
-  SystemProgram,
   TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import dotenv from "dotenv";
 import bs58 from "bs58";
@@ -16,6 +17,9 @@ import { getStakeInstruction } from "./stakeInstruction.js";
 import BigNumber from "bignumber.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { removeBigint } from "./utils.js";
+import { getPriorityFeeEstimate } from './solana/priorityFee.js';
+import { VSOL_MINT } from './consts.js';
+import { getDirectInstruction } from './getDirectInstruction.js';
 
 dotenv.config();
 
@@ -26,6 +30,11 @@ const rpcUrl = process.env.RPC_URL;
 if (!rpcUrl) {
   throw new Error("RPC_URL is required");
 }
+const heliusApi = process.env.HELIUS_API_KEY;
+if (!heliusApi) {
+    throw new Error("HELIUS_API_KEY is required");
+}
+const heliusUrl = `https://mainnet.helius-rpc.com/?api-key=${heliusApi}`;
 const connection = new Connection(rpcUrl);
 
 const tokenQuerySchema = z.object({
@@ -108,6 +117,7 @@ const stakeQuerySchema = z.object({
   mint: z.string(),
   amount: z.string(),
   balance: z.string(),
+  target: z.string().optional(),
 });
 
 // Stake route
@@ -116,13 +126,23 @@ fastify.get("/stake", async (request, reply) => {
 
   if (!result.success) {
     return reply.status(400).send({
-      error: "Missing required query parameters: address, mint",
+      error: "Missing required query parameters: address, mint, amount, balance",
       issues: result.error.issues, // Optional: shows what exactly failed
     });
   }
-  const { address, mint, amount, balance } = result.data;
+  const { address, mint, amount, balance, target } = result.data;
   const userSolTransfer = Keypair.generate();
-  const ixs = await getStakeInstruction(
+  const ixs = [];
+  if(target) {
+   // create direct stake instruction
+    if(mint !== VSOL_MINT) {
+        return reply.status(400).send({
+            error: "Must use vSOL mint for direct staking",
+        });
+    }
+    ixs.push(...await getDirectInstruction(address, target, connection));
+  }
+  ixs.push(...await getStakeInstruction(
     new PublicKey(mint),
     new PublicKey(address),
     new BigNumber(amount),
@@ -130,16 +150,36 @@ fastify.get("/stake", async (request, reply) => {
     PublicKey.default,
     userSolTransfer,
     connection,
-  );
+  ));
   const recentBlockhash = await connection.getLatestBlockhash();
+
+  //Build a Tx to figure out CUs and priority fee
+  const testMessage = new TransactionMessage({
+    recentBlockhash: recentBlockhash.blockhash,
+    instructions: ixs,
+    payerKey: new PublicKey(address),
+  }).compileToV0Message();
+  const testTx = new VersionedTransaction(testMessage);
+  const {priorityFeeEstimate: microLamports } = await getPriorityFeeEstimate("Medium", testTx, heliusUrl);
+  const sim = await connection.simulateTransaction(testTx);
+  const units = sim.value.unitsConsumed + 3000;
+  ixs.unshift(ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports
+  }));
+  ixs.unshift(ComputeBudgetProgram.setComputeUnitLimit({
+    units
+  }));
+
+  //Build the final Tx
   const message = new TransactionMessage({
     recentBlockhash: recentBlockhash.blockhash,
     instructions: ixs,
     payerKey: new PublicKey(address),
   }).compileToV0Message();
+  const tx = new VersionedTransaction(message);
+  tx.sign([userSolTransfer]);
   return reply.send({
-    userSolTransfer: userSolTransfer.publicKey.toBase58(),
-    message: bs58.encode(message.serialize()),
+    transaction: bs58.encode(tx.serialize()),
   });
 });
 

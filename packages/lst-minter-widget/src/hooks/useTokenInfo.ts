@@ -1,6 +1,8 @@
+import { VSOL_TOKEN_INFO } from '../constants';
+
 export default function useTokenInfo(dstInfo: any) {
   if (!dstInfo) {
-    return { data: null };
+    return { data: VSOL_TOKEN_INFO};
   }
   const { mint, metadata, imageUrl } = dstInfo.metadata;
 

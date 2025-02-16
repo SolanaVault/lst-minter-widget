@@ -1,25 +1,21 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { LstMinterWidget } from "@the-vault/lst-minter-widget";
 import {
-  ComputeBudgetProgram,
-  Keypair,
-  PublicKey,
-  TransactionMessage,
-  VersionedMessage,
-  VersionedTransaction,
+  VersionedTransaction
 } from "@solana/web3.js";
 import bs58 from "bs58";
 import { useState } from "react";
+import { VSOL_MINT } from '@the-vault/lst-minter-api/dist/consts';
 
 export const LstMinterComponent = () => {
   const api = import.meta.env.VITE_API_URL;
   const [processing, setProccessing] = useState(false);
   const [preparing, setPreparing] = useState(false);
+  const [isGridSol, setIsGridSol] = useState(true);
   const { publicKey, wallet } = useWallet();
   const { connection } = useConnection();
   const sendTransaction = async (
-    serializedMessage: string,
-    oldUserSolTransferEncoded: string,
+    serializedTx: string,
   ) => {
     setPreparing(false);
     setProccessing(true);
@@ -28,40 +24,10 @@ export const LstMinterComponent = () => {
       if (!wallet || !publicKey) {
         return;
       }
-      const receivedMessage = VersionedMessage.deserialize(
-        bs58.decode(serializedMessage),
+      const tx = VersionedTransaction.deserialize(
+        bs58.decode(serializedTx),
       );
-      //Decompile the message to add priority fee and change ephemeral signer
-      const transactionMessage = TransactionMessage.decompile(receivedMessage);
-
-      //Add priority fee
-      transactionMessage.instructions.unshift(
-        ComputeBudgetProgram.setComputeUnitLimit({
-          units: 120_000,
-        }),
-      );
-      transactionMessage.instructions.unshift(
-        ComputeBudgetProgram.setComputeUnitPrice({
-          microLamports: 20_000,
-        }),
-      );
-      const oldUserSolTransfer = new PublicKey(oldUserSolTransferEncoded);
-      const message = transactionMessage.compileToV0Message();
-      //Create a new ephemeral signer
-      const userSolTransfer = Keypair.generate();
-
-      //Replace the ephemeral signer
-      message.staticAccountKeys = message.staticAccountKeys.map((key) => {
-        if (key.equals(oldUserSolTransfer)) {
-          return userSolTransfer.publicKey;
-        }
-        return key;
-      });
-
-      const tx = new VersionedTransaction(message);
-      console.log(Buffer.from(tx.serialize()).toString("base64"));
-      //Sign with the ephemeral signer
-      tx.sign([userSolTransfer]);
+      console.log("tx", await connection.simulateTransaction(tx));
       const signature = await wallet.adapter.sendTransaction(tx, connection);
       const blockhash = await connection.getLatestBlockhash();
       console.log("confirming tx");
@@ -80,32 +46,36 @@ export const LstMinterComponent = () => {
     }
   };
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyItems: "flex-start",
-        gap: ".5rem",
-      }}
-    >
-      <div style={{ color: "white", fontSize: "36px" }}>Stake SOL with </div>
-      <div style={{ color: "#FF8C00", fontSize: "36px" }}>Grid Systems Validator</div>
-      <LstMinterWidget
-        onButtonPress={() => {
-          setPreparing(true);
-          setTimeout(() => {
-            setPreparing(false);
-          }, 10000);
-        }}
-        onTxReady={({ message, userSolTransfer }) =>
-          sendTransaction(message, userSolTransfer)
-        }
-        api={api}
-        processing={preparing || processing}
-        mint={"gridBR1TSJcV1JjAEE9g7ouoiVaEgDNT3dhY6n9oKQq"}
-        address={publicKey?.toBase58()}
-      />
-    </div>
+      <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyItems: "flex-start",
+            gap: ".5rem",
+          }}
+      >
+        <button className="switch-button" onClick={() => setIsGridSol((prev) => !prev)}>
+          Switch to {isGridSol ? "directed vSOL" : "validator LST"}
+        </button>
+        <div style={{color: "white", fontSize: "36px"}}>Stake SOL with</div>
+        <div style={{color: "#FF8C00", fontSize: "36px"}}>{isGridSol ? "Grid Systems Validator LST" : "vSOL Directed to Grid Systems Validator"}</div>
+        <LstMinterWidget
+            onButtonPress={() => {
+              setPreparing(true);
+              setTimeout(() => {
+                setPreparing(false);
+              }, 10000);
+            }}
+            onTxReady={({transaction}) =>
+                sendTransaction(transaction)
+            }
+            api={api}
+            processing={preparing || processing}
+            mint={isGridSol ? "gridBR1TSJcV1JjAEE9g7ouoiVaEgDNT3dhY6n9oKQq" : VSOL_MINT}
+            target={isGridSol ? undefined : "gridZ5cMHjWGktAQt6o36NtF7XSv19nJBrW83zmo7BM"}
+            address={publicKey?.toBase58()}
+        />
+      </div>
   );
 };
