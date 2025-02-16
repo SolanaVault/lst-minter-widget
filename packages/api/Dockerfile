@@ -14,7 +14,7 @@ COPY . .
 RUN yarn set version berry
 
 # Install only the dependencies for the API package
-RUN yarn install --immutable --check-cache && yarn patch-package  && yarn rebuild
+RUN yarn install --immutable --check-cache && yarn rebuild
 
 # Expose the API port
 EXPOSE 3001

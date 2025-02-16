@@ -56,10 +56,10 @@ export const LstMinterComponent = () => {
           }}
       >
         <button className="switch-button" onClick={() => setIsGridSol((prev) => !prev)}>
-          Switch to {isGridSol ? "The Vault" : "Grid Systems Validator"}
+          Switch to {isGridSol ? "directed vSOL" : "validator LST"}
         </button>
         <div style={{color: "white", fontSize: "36px"}}>Stake SOL with</div>
-        <div style={{color: "#FF8C00", fontSize: "36px"}}>{isGridSol ? "Grid Systems Validator" : "The Vault"}</div>
+        <div style={{color: "#FF8C00", fontSize: "36px"}}>{isGridSol ? "Grid Systems Validator LST" : "vSOL Directed to Grid Systems Validator"}</div>
         <LstMinterWidget
             onButtonPress={() => {
               setPreparing(true);
@@ -73,6 +73,7 @@ export const LstMinterComponent = () => {
             api={api}
             processing={preparing || processing}
             mint={isGridSol ? "gridBR1TSJcV1JjAEE9g7ouoiVaEgDNT3dhY6n9oKQq" : VSOL_MINT}
+            target={isGridSol ? undefined : "gridZ5cMHjWGktAQt6o36NtF7XSv19nJBrW83zmo7BM"}
             address={publicKey?.toBase58()}
         />
       </div>

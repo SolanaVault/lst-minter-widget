@@ -7,8 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "tsc && node ./dist/index.js",
-    "postinstall": "patch-package"
+    "start": "tsc && node ./dist/index.js"
   },
   "private": true,
   "dependencies": {
@@ -22,7 +21,7 @@
     "@solana/spl-stake-pool": "^1.1.8",
     "@solana/spl-token": "^0.4.12",
     "@solana/web3.js": "^1.98.0",
-    "@thevault/dst": "^2.0.2",
+    "@thevault/dst": "patch:@thevault/dst@npm%3A2.0.2#~/.yarn/patches/@thevault-dst-npm-2.0.2-c4bb24daa0.patch",
     "bn.js": "^5.2.1",
     "bs58": "^6.0.0",
     "dotenv": "^16.4.7",
@@ -30,11 +29,9 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@thevault/directed-stake": "^1.1.2",
+    "@thevault/directed-stake": "patch:@thevault/directed-stake@npm%3A1.1.2#~/.yarn/patches/@thevault-directed-stake-npm-1.1.2-a2e460176a.patch",
     "@types/bn.js": "^5",
     "fastify-tsconfig": "^3.0.0",
-    "patch-package": "^8.0.0",
-    "postinstall-postinstall": "^2.1.0",
     "typescript": "^5.7.3",
     "vite": "^6.1.0"
   }

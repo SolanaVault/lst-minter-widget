@@ -3,8 +3,8 @@ import {
   dstInfoParser,
   findDSTInfoAddress,
 } from "@thevault/dst";
-import { directorParser, findDirectorAddress } from "../utils.js";
 import { Connection } from "@solana/web3.js";
+import { directorParser, findDirectorAddress } from '@thevault/directed-stake';
 
 export async function getAllDSTs(connection: Connection) {
   const info = (await connection.getProgramAccounts(DST_PROGRAM_ID))

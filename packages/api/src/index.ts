@@ -18,6 +18,8 @@ import BigNumber from "bignumber.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { removeBigint } from "./utils.js";
 import { getPriorityFeeEstimate } from './solana/priorityFee.js';
+import { VSOL_MINT } from './consts.js';
+import { getDirectInstruction } from './getDirectInstruction.js';
 
 dotenv.config();
 
@@ -115,6 +117,7 @@ const stakeQuerySchema = z.object({
   mint: z.string(),
   amount: z.string(),
   balance: z.string(),
+  target: z.string().optional(),
 });
 
 // Stake route
@@ -123,13 +126,23 @@ fastify.get("/stake", async (request, reply) => {
 
   if (!result.success) {
     return reply.status(400).send({
-      error: "Missing required query parameters: address, mint",
+      error: "Missing required query parameters: address, mint, amount, balance",
       issues: result.error.issues, // Optional: shows what exactly failed
     });
   }
-  const { address, mint, amount, balance } = result.data;
+  const { address, mint, amount, balance, target } = result.data;
   const userSolTransfer = Keypair.generate();
-  const ixs = await getStakeInstruction(
+  const ixs = [];
+  if(target) {
+   // create direct stake instruction
+    if(mint !== VSOL_MINT) {
+        return reply.status(400).send({
+            error: "Must use vSOL mint for direct staking",
+        });
+    }
+    ixs.push(...await getDirectInstruction(address, target, connection));
+  }
+  ixs.push(...await getStakeInstruction(
     new PublicKey(mint),
     new PublicKey(address),
     new BigNumber(amount),
@@ -137,7 +150,7 @@ fastify.get("/stake", async (request, reply) => {
     PublicKey.default,
     userSolTransfer,
     connection,
-  );
+  ));
   const recentBlockhash = await connection.getLatestBlockhash();
 
   //Build a Tx to figure out CUs and priority fee

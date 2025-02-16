@@ -11,6 +11,7 @@ export const LstMinterWidget = ({
   onTxReady,
   address,
   processing,
+  target
 }: Props) => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -21,6 +22,7 @@ export const LstMinterWidget = ({
         api={api}
         onButtonPress={onButtonPress}
         address={address}
+        target={target}
       />
     </QueryClientProvider>
   );
