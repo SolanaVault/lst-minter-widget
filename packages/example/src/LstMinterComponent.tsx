@@ -3,7 +3,6 @@ import { LstMinterWidget } from "@the-vault/lst-minter-widget";
 import {
   VersionedTransaction
 } from "@solana/web3.js";
-import bs58 from "bs58";
 import { useState } from "react";
 import { VSOL_MINT } from '@the-vault/lst-minter-api/dist/consts';
 
@@ -25,7 +24,7 @@ export const LstMinterComponent = () => {
         return;
       }
       const tx = VersionedTransaction.deserialize(
-        bs58.decode(serializedTx),
+        Buffer.from(serializedTx, "base64")
       );
       console.log("tx", await connection.simulateTransaction(tx));
       const signature = await wallet.adapter.sendTransaction(tx, connection);

@@ -93,4 +93,4 @@ element at the top of the file.
 
 ## Demo
 You can see the widget in action at https://lst-minter-demo.pages.dev/. The API is deployed at
-https://lstminter.boundlessendeavors.llc, which you can use during bring up for your widget instance.
+https://direct.thevault.finance, which you can use during bring up for your widget instance.
