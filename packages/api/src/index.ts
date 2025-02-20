@@ -126,7 +126,7 @@ fastify.get("/stake", async (request, reply) => {
 
   if (!result.success) {
     return reply.status(400).send({
-      error: "Missing required query parameters: address, mint, amount, balance",
+      error: "Missing required query parameters: address, mint, amount, balance, or target",
       issues: result.error.issues, // Optional: shows what exactly failed
     });
   }
@@ -179,7 +179,7 @@ fastify.get("/stake", async (request, reply) => {
   const tx = new VersionedTransaction(message);
   tx.sign([userSolTransfer]);
   return reply.send({
-    transaction: bs58.encode(tx.serialize()),
+    transaction: Buffer.from(tx.serialize()).toString("base64"),
   });
 });
 
