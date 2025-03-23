@@ -6,7 +6,6 @@ node_modules/
 !.yarn/sdks
 !.yarn/patches
 .pnp.*
-.yarnrc.yml
 .yarn-integrity
 .yarn.lock
 
