@@ -26,13 +26,6 @@ export async function getStakeInstruction(
   connection: Connection,
 ) {
   let instructions: TransactionInstruction[] = [];
-  const lstAta = getAssociatedTokenAddressSync(mint, payer, true);
-  const userAtaAccount = await connection.getAccountInfo(lstAta);
-  if (!userAtaAccount) {
-    instructions.push(
-      createAssociatedTokenAccountInstruction(payer, lstAta, payer, mint),
-    );
-  }
 
   const vsolAta = getAssociatedTokenAddressSync(
     new PublicKey(VSOL_MINT),
@@ -65,6 +58,7 @@ export async function getStakeInstruction(
     payer,
     amount.toNumber(),
     userSolTransfer,
+    vsolAta
   );
   for (const ix of depositSolIx.instructions) {
     instructions.push(ix);
@@ -74,6 +68,14 @@ export async function getStakeInstruction(
     .div(stakePoolSummary.totalSOL);
 
   if(mint.toBase58() !== VSOL_MINT)  {
+    // Create LST ATA if needed
+    const lstAta = getAssociatedTokenAddressSync(mint, payer, true);
+    const userAtaAccount = await connection.getAccountInfo(lstAta);
+    if (!userAtaAccount) {
+      instructions.push(
+          createAssociatedTokenAccountInstruction(payer, lstAta, payer, mint),
+      );
+    }
     const mintTX = mintDST({
       provider: { ...provider, connection },
       dst: dstAddress,

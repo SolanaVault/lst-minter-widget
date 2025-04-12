@@ -5,6 +5,7 @@ import {
 } from "@solana/web3.js";
 import { useState } from "react";
 import { VSOL_MINT } from '@the-vault/lst-minter-api/dist/consts';
+import { getPhantomProvider } from './phantom.ts';
 
 export const LstMinterComponent = () => {
   const api = import.meta.env.VITE_API_URL;
@@ -27,7 +28,15 @@ export const LstMinterComponent = () => {
         Buffer.from(serializedTx, "base64")
       );
       console.log("tx", await connection.simulateTransaction(tx));
-      const signature = await wallet.adapter.sendTransaction(tx, connection);
+      const phantomProvider = getPhantomProvider();
+      let signature;
+      if(phantomProvider) {
+          const result = await phantomProvider.signAndSendTransaction(tx);
+          signature = result.signature;
+      } else {
+          signature = await wallet.adapter.sendTransaction(tx, connection);
+      }
+      console.log("signature", signature);
       const blockhash = await connection.getLatestBlockhash();
       console.log("confirming tx");
       const confirmation = await connection.confirmTransaction({
