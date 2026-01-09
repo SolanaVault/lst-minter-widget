@@ -1,5 +1,7 @@
-import Fastify from "fastify";
-import cors from "@fastify/cors";
+import type {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResultV2,
+} from "aws-lambda";
 import { z } from "zod";
 import {
   ComputeBudgetProgram,
@@ -10,106 +12,85 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import dotenv from "dotenv";
-import bs58 from "bs58";
 import { getAllDSTs } from "./dstProgram/dstFetch.js";
 import { getMetadata } from "./metadataFetch.js";
 import { getStakeInstruction } from "./stakeInstruction.js";
 import BigNumber from "bignumber.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { removeBigint } from "./utils.js";
-import { getPriorityFeeEstimate } from './solana/priorityFee.js';
-import { VSOL_MINT } from './consts.js';
-import { getDirectInstruction } from './getDirectInstruction.js';
+import { getPriorityFeeEstimate } from "./solana/priorityFee.js";
+import { VSOL_MINT } from "./consts.js";
+import { getDirectInstruction } from "./getDirectInstruction.js";
 
 dotenv.config();
 
-const fastify = Fastify({ logger: true });
-const host = process.env.HOST || "localhost";
-const port = parseInt(process.env.PORT) || 3001;
-const rpcUrl = process.env.RPC_URL;
-if (!rpcUrl) {
-  throw new Error("RPC_URL is required");
-}
-const heliusApi = process.env.HELIUS_API_KEY;
-if (!heliusApi) {
-    throw new Error("HELIUS_API_KEY is required");
-}
+const ensureEnv = (key: string) => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`${key} is required`);
+  }
+  return value;
+};
+
+const rpcUrl = ensureEnv("RPC_URL");
+const heliusApi = ensureEnv("HELIUS_API_KEY");
 const heliusUrl = `https://mainnet.helius-rpc.com/?api-key=${heliusApi}`;
 const connection = new Connection(rpcUrl);
+const corsEnv =
+  process.env.CORS_ALLOWED_ORIGIN ?? process.env.CORS_ORIGIN ?? "*";
+const allowedOrigins =
+  corsEnv === "*"
+    ? ["*"]
+    : corsEnv.split(",").map((origin) => origin.trim()).filter(Boolean);
+
+const resolveOrigin = (requestOrigin?: string) => {
+  if (allowedOrigins.includes("*")) {
+    return "*";
+  }
+  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin;
+  }
+  return allowedOrigins[0] ?? "*";
+};
+
+const buildCorsHeaders = (event: APIGatewayProxyEventV2) => {
+  const originHeader = event.headers?.origin ?? event.headers?.Origin;
+  const allowOrigin = resolveOrigin(originHeader);
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+  };
+};
+
+const jsonResponse = (
+  event: APIGatewayProxyEventV2,
+  statusCode: number,
+  body: Record<string, unknown>,
+): APIGatewayProxyResultV2 => ({
+  statusCode,
+  headers: {
+    ...buildCorsHeaders(event),
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(body),
+});
+
+const noContentResponse = (
+  event: APIGatewayProxyEventV2,
+): APIGatewayProxyResultV2 => ({
+  statusCode: 204,
+  headers: buildCorsHeaders(event),
+});
 
 const tokenQuerySchema = z.object({
   address: z.string(),
   mint: z.string(),
 });
 
-fastify.get("/balance", async (request, reply) => {
-  const result = tokenQuerySchema.safeParse(request.query);
-
-  if (!result.success) {
-    return reply.status(400).send({
-      error: "Missing required query parameters: address, mint",
-      issues: result.error.issues, // Optional: shows what exactly failed
-    });
-  }
-  const { address, mint } = result.data;
-  const sol = await connection.getBalance(new PublicKey(address));
-  const lstAta = await getAssociatedTokenAddressSync(
-    new PublicKey(mint),
-    new PublicKey(address),
-  );
-  let lst: string;
-  try {
-    const result = await connection.getTokenAccountBalance(lstAta);
-    console.log("result", result);
-    lst = result.value.amount;
-  } catch {
-    lst = "0";
-  }
-  return reply.send({ sol: sol.toString(), lst });
-});
-
 const dstInfoQuerySchema = z.object({
   mint: z.string(),
-});
-
-const dstCache: Record<string, { data: any; expiresAt: number }> = {};
-const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-fastify.get("/dstInfo", async (request, reply) => {
-  const result = dstInfoQuerySchema.safeParse(request.query);
-
-  if (!result.success) {
-    return reply.status(400).send({
-      error: "Missing required query parameters: address, mint",
-      issues: result.error.issues, // Optional: shows what exactly failed
-    });
-  }
-
-  const { mint } = result.data;
-  const cachedDst = dstCache[mint];
-  const now = Date.now();
-  if (cachedDst && cachedDst.expiresAt > now) {
-    console.log("Serving from cache");
-    return reply.send(removeBigint(cachedDst.data));
-  }
-
-  const dsts = await getAllDSTs(connection);
-  const dst = dsts.find((dst) => dst.data.tokenMint.toString() === mint);
-  if (!dst) {
-    return reply.status(404).send({ error: "DST not found" });
-  }
-  const metadata = await getMetadata(mint);
-  if (!metadata) {
-    return reply.status(404).send({ error: "Metadata not found" });
-  }
-
-  // Cache the response
-  dstCache[mint] = {
-    data: { metadata, dst },
-    expiresAt: now + CACHE_DURATION_MS,
-  };
-
-  return reply.send(removeBigint({ metadata, dst }));
 });
 
 const stakeQuerySchema = z.object({
@@ -120,83 +101,188 @@ const stakeQuerySchema = z.object({
   target: z.string().optional(),
 });
 
-// Stake route
-fastify.get("/stake", async (request, reply) => {
-  const result = stakeQuerySchema.safeParse(request.query);
+const dstCache: Record<string, { data: any; expiresAt: number }> = {};
+const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+const handleOptions = (event: APIGatewayProxyEventV2) => {
+  if (event.requestContext.http.method === "OPTIONS") {
+    return noContentResponse(event);
+  }
+  return null;
+};
+
+export const balance = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  const optionsResponse = handleOptions(event);
+  if (optionsResponse) {
+    return optionsResponse;
+  }
+
+  const result = tokenQuerySchema.safeParse(
+    event.queryStringParameters ?? {},
+  );
+  if (!result.success) {
+    return jsonResponse(event, 400, {
+      error: "Missing required query parameters: address, mint",
+      issues: result.error.issues,
+    });
+  }
+
+  try {
+    const { address, mint } = result.data;
+    const sol = await connection.getBalance(new PublicKey(address));
+    const lstAta = await getAssociatedTokenAddressSync(
+      new PublicKey(mint),
+      new PublicKey(address),
+    );
+    let lst: string;
+    try {
+      const tokenBalance = await connection.getTokenAccountBalance(lstAta);
+      lst = tokenBalance.value.amount;
+    } catch {
+      lst = "0";
+    }
+    return jsonResponse(event, 200, { sol: sol.toString(), lst });
+  } catch (error) {
+    console.error("Failed to fetch balance", error);
+    return jsonResponse(event, 500, {
+      error: "Failed to fetch balance information",
+    });
+  }
+};
+
+export const dstInfo = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  const optionsResponse = handleOptions(event);
+  if (optionsResponse) {
+    return optionsResponse;
+  }
+
+  const result = dstInfoQuerySchema.safeParse(
+    event.queryStringParameters ?? {},
+  );
 
   if (!result.success) {
-    return reply.status(400).send({
-      error: "Missing required query parameters: address, mint, amount, balance, or target",
-      issues: result.error.issues, // Optional: shows what exactly failed
+    return jsonResponse(event, 400, {
+      error: "Missing required query parameters: mint",
+      issues: result.error.issues,
+    });
+  }
+
+  try {
+    const { mint } = result.data;
+    const cachedDst = dstCache[mint];
+    const now = Date.now();
+    if (cachedDst && cachedDst.expiresAt > now) {
+      return jsonResponse(event, 200, removeBigint(cachedDst.data));
+    }
+
+    const dsts = await getAllDSTs(connection);
+    const dst = dsts.find((entry) => entry.data.tokenMint.toString() === mint);
+    if (!dst) {
+      return jsonResponse(event, 404, { error: "DST not found" });
+    }
+    const metadata = await getMetadata(mint);
+    if (!metadata) {
+      return jsonResponse(event, 404, { error: "Metadata not found" });
+    }
+
+    const payload = { metadata, dst };
+
+    dstCache[mint] = {
+      data: payload,
+      expiresAt: now + CACHE_DURATION_MS,
+    };
+
+    return jsonResponse(event, 200, removeBigint(payload));
+  } catch (error) {
+    console.error("Failed to fetch DST info", error);
+    return jsonResponse(event, 500, { error: "Failed to fetch DST info" });
+  }
+};
+
+export const stake = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  const optionsResponse = handleOptions(event);
+  if (optionsResponse) {
+    return optionsResponse;
+  }
+
+  const result = stakeQuerySchema.safeParse(
+    event.queryStringParameters ?? {},
+  );
+
+  if (!result.success) {
+    return jsonResponse(event, 400, {
+      error:
+        "Missing required query parameters: address, mint, amount, balance, or target",
+      issues: result.error.issues,
     });
   }
   const { address, mint, amount, balance, target } = result.data;
-  const userSolTransfer = Keypair.generate();
-  const ixs = [];
-  if(target) {
-   // create direct stake instruction
-    if(mint !== VSOL_MINT) {
-        return reply.status(400).send({
-            error: "Must use vSOL mint for direct staking",
-        });
-    }
-    ixs.push(...await getDirectInstruction(address, target, connection));
-  }
-  ixs.push(...await getStakeInstruction(
-    new PublicKey(mint),
-    new PublicKey(address),
-    new BigNumber(amount),
-    new BigNumber(balance),
-    PublicKey.default,
-    userSolTransfer,
-    connection,
-  ));
-  const recentBlockhash = await connection.getLatestBlockhash();
 
-  //Build a Tx to figure out CUs and priority fee
-  const testMessage = new TransactionMessage({
-    recentBlockhash: recentBlockhash.blockhash,
-    instructions: ixs,
-    payerKey: new PublicKey(address),
-  }).compileToV0Message();
-  const testTx = new VersionedTransaction(testMessage);
-  const {priorityFeeEstimate: microLamports } = await getPriorityFeeEstimate("Medium", testTx, heliusUrl);
-  const sim = await connection.simulateTransaction(testTx);
-  const units = sim.value.unitsConsumed + 3000;
-  ixs.unshift(ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports
-  }));
-  ixs.unshift(ComputeBudgetProgram.setComputeUnitLimit({
-    units
-  }));
-
-  //Build the final Tx
-  const message = new TransactionMessage({
-    recentBlockhash: recentBlockhash.blockhash,
-    instructions: ixs,
-    payerKey: new PublicKey(address),
-  }).compileToV0Message();
-  const tx = new VersionedTransaction(message);
-  tx.sign([userSolTransfer]);
-  return reply.send({
-    transaction: Buffer.from(tx.serialize()).toString("base64"),
-  });
-});
-
-// Start the server
-async function startServer() {
-  console.log("Allowed CORS origin:", process.env.CORS_ORIGIN);
   try {
-    await fastify.register(cors, {
-      origin: process.env.CORS_ORIGIN,
+    const userSolTransfer = Keypair.generate();
+    const ixs = [];
+    if (target) {
+      if (mint !== VSOL_MINT) {
+        return jsonResponse(event, 400, {
+          error: "Must use vSOL mint for direct staking",
+        });
+      }
+      ixs.push(...(await getDirectInstruction(address, target, connection)));
+    }
+    ixs.push(
+      ...(await getStakeInstruction(
+        new PublicKey(mint),
+        new PublicKey(address),
+        new BigNumber(amount),
+        new BigNumber(balance),
+        PublicKey.default,
+        userSolTransfer,
+        connection,
+      )),
+    );
+    const recentBlockhash = await connection.getLatestBlockhash();
+
+    const testMessage = new TransactionMessage({
+      recentBlockhash: recentBlockhash.blockhash,
+      instructions: ixs,
+      payerKey: new PublicKey(address),
+    }).compileToV0Message();
+    const testTx = new VersionedTransaction(testMessage);
+    const { priorityFeeEstimate: microLamports } =
+      await getPriorityFeeEstimate("Medium", testTx, heliusUrl);
+    const sim = await connection.simulateTransaction(testTx);
+    const units = (sim.value.unitsConsumed ?? 0) + 3000;
+    ixs.unshift(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports,
+      }),
+    );
+    ixs.unshift(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units,
+      }),
+    );
+
+    const message = new TransactionMessage({
+      recentBlockhash: recentBlockhash.blockhash,
+      instructions: ixs,
+      payerKey: new PublicKey(address),
+    }).compileToV0Message();
+    const tx = new VersionedTransaction(message);
+    tx.sign([userSolTransfer]);
+    return jsonResponse(event, 200, {
+      transaction: Buffer.from(tx.serialize()).toString("base64"),
     });
-
-    await fastify.listen({ port, host });
-    fastify.log.info(`Server listening at http://localhost:${port}`);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
+  } catch (error) {
+    console.error("Failed to create stake transaction", error);
+    return jsonResponse(event, 500, {
+      error: "Failed to create stake transaction",
+    });
   }
-}
-
-startServer();
+};

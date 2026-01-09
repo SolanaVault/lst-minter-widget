@@ -1,0 +1,878 @@
+{
+  "service": {
+    "service": "lst-minter-api",
+    "serviceObject": {
+      "name": "lst-minter-api"
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs24.x",
+      "region": "us-east-1",
+      "stage": "dev",
+      "memorySize": 1024,
+      "timeout": 30,
+      "httpApi": {
+        "cors": {
+          "allowedOrigins": [
+            "http://localhost:8000",
+            "https://localhost:8000",
+            "http://localhost:5173"
+          ],
+          "allowedMethods": [
+            "GET",
+            "OPTIONS"
+          ],
+          "allowedHeaders": [
+            "Content-Type",
+            "Authorization"
+          ],
+          "allowCredentials": true
+        }
+      },
+      "environment": {
+        "STAGE": "dev",
+        "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
+        "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
+        "CORS_ALLOWED_ORIGIN": {
+          "Fn::Join": [
+            ",",
+            [
+              "http://localhost:8000",
+              "https://localhost:8000",
+              "http://localhost:5173"
+            ]
+          ]
+        }
+      },
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "BalanceLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/lst-minter-api-dev-balance"
+            }
+          },
+          "DstInfoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/lst-minter-api-dev-dstInfo"
+            }
+          },
+          "StakeLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/lst-minter-api-dev-stake"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "lst-minter-api",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/lst-minter-api-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/lst-minter-api-dev*:*:*"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "lst-minter-api",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "BalanceLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z/lst-minter-api.zip"
+              },
+              "Handler": "src/index.balance",
+              "Runtime": "nodejs24.x",
+              "FunctionName": "lst-minter-api-dev-balance",
+              "MemorySize": 1024,
+              "Timeout": 30,
+              "Environment": {
+                "Variables": {
+                  "STAGE": "dev",
+                  "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
+                  "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
+                  "CORS_ALLOWED_ORIGIN": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "BalanceLogGroup"
+            ]
+          },
+          "DstInfoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z/lst-minter-api.zip"
+              },
+              "Handler": "src/index.dstInfo",
+              "Runtime": "nodejs24.x",
+              "FunctionName": "lst-minter-api-dev-dstInfo",
+              "MemorySize": 1024,
+              "Timeout": 30,
+              "Environment": {
+                "Variables": {
+                  "STAGE": "dev",
+                  "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
+                  "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
+                  "CORS_ALLOWED_ORIGIN": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "DstInfoLogGroup"
+            ]
+          },
+          "StakeLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z/lst-minter-api.zip"
+              },
+              "Handler": "src/index.stake",
+              "Runtime": "nodejs24.x",
+              "FunctionName": "lst-minter-api-dev-stake",
+              "MemorySize": 1024,
+              "Timeout": 60,
+              "Environment": {
+                "Variables": {
+                  "STAGE": "dev",
+                  "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
+                  "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
+                  "CORS_ALLOWED_ORIGIN": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "StakeLogGroup"
+            ]
+          },
+          "BalanceLambdaVersionE9AyVMcVATcZ88sMYgg6iXkbHC5dtjxMXUPxqEECrko": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "BalanceLambdaFunction"
+              },
+              "CodeSha256": "BnqZYtnlYMXDT/LJQRSXCKYBxrFIrk3lT1muDUdS+NU="
+            }
+          },
+          "DstInfoLambdaVersionO8epjfJ0cW9rJdkKXtFgcAAtycN7JsAquw0tXE4rrTg": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DstInfoLambdaFunction"
+              },
+              "CodeSha256": "BnqZYtnlYMXDT/LJQRSXCKYBxrFIrk3lT1muDUdS+NU="
+            }
+          },
+          "StakeLambdaVersion9cnzZ5ADV3wkCCDJq0J55dSn1eZXyHYCoUwSGs6Xe1I": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "StakeLambdaFunction"
+              },
+              "CodeSha256": "BnqZYtnlYMXDT/LJQRSXCKYBxrFIrk3lT1muDUdS+NU="
+            }
+          },
+          "HttpApi": {
+            "Type": "AWS::ApiGatewayV2::Api",
+            "Properties": {
+              "Name": "dev-lst-minter-api",
+              "ProtocolType": "HTTP",
+              "CorsConfiguration": {
+                "AllowCredentials": true,
+                "AllowHeaders": [
+                  "Content-Type",
+                  "Authorization"
+                ],
+                "AllowMethods": [
+                  "GET",
+                  "OPTIONS"
+                ],
+                "AllowOrigins": [
+                  "http://localhost:8000",
+                  "https://localhost:8000",
+                  "http://localhost:5173"
+                ]
+              }
+            }
+          },
+          "HttpApiStage": {
+            "Type": "AWS::ApiGatewayV2::Stage",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "StageName": "$default",
+              "AutoDeploy": true,
+              "DefaultRouteSettings": {
+                "DetailedMetricsEnabled": false
+              }
+            }
+          },
+          "BalanceLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "BalanceLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationBalance": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"BalanceLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetBalance": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /balance",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationBalance"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationBalance"
+          },
+          "DstInfoLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "DstInfoLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationDstInfo": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"DstInfoLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetDstinfo": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /dstInfo",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationDstInfo"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationDstInfo"
+          },
+          "StakeLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "StakeLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationStake": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"StakeLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetStake": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /stake",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationStake"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationStake"
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            },
+            "Export": {
+              "Name": "sls-lst-minter-api-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "BalanceLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "BalanceLambdaVersionE9AyVMcVATcZ88sMYgg6iXkbHC5dtjxMXUPxqEECrko"
+            },
+            "Export": {
+              "Name": "sls-lst-minter-api-dev-BalanceLambdaFunctionQualifiedArn"
+            }
+          },
+          "DstInfoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DstInfoLambdaVersionO8epjfJ0cW9rJdkKXtFgcAAtycN7JsAquw0tXE4rrTg"
+            },
+            "Export": {
+              "Name": "sls-lst-minter-api-dev-DstInfoLambdaFunctionQualifiedArn"
+            }
+          },
+          "StakeLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "StakeLambdaVersion9cnzZ5ADV3wkCCDJq0J55dSn1eZXyHYCoUwSGs6Xe1I"
+            },
+            "Export": {
+              "Name": "sls-lst-minter-api-dev-StakeLambdaFunctionQualifiedArn"
+            }
+          },
+          "HttpApiId": {
+            "Description": "Id of the HTTP API",
+            "Value": {
+              "Ref": "HttpApi"
+            },
+            "Export": {
+              "Name": "sls-lst-minter-api-dev-HttpApiId"
+            }
+          },
+          "HttpApiUrl": {
+            "Description": "URL of the HTTP API",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  }
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-lst-minter-api-dev-HttpApiUrl"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "custom": {
+      "stage": "dev",
+      "corsAllowedOrigin": {
+        "dev": [
+          "http://localhost:8000",
+          "https://localhost:8000",
+          "http://localhost:5173"
+        ],
+        "production": [
+          "https://app.example.com"
+        ]
+      },
+      "esbuild": {
+        "bundle": true,
+        "minify": false,
+        "sourcemap": false,
+        "target": "node24",
+        "platform": "node",
+        "keepNames": true,
+        "tsconfig": "tsconfig.json"
+      }
+    },
+    "plugins": [
+      "serverless-esbuild",
+      "serverless-offline"
+    ],
+    "pluginsData": {},
+    "functions": {
+      "balance": {
+        "handler": "src/index.balance",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/balance",
+              "method": "GET"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/balance"
+          }
+        ],
+        "name": "lst-minter-api-dev-balance",
+        "package": {},
+        "memory": 1024,
+        "timeout": 30,
+        "runtime": "nodejs24.x",
+        "vpc": {},
+        "versionLogicalId": "BalanceLambdaVersionE9AyVMcVATcZ88sMYgg6iXkbHC5dtjxMXUPxqEECrko"
+      },
+      "dstInfo": {
+        "handler": "src/index.dstInfo",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/dstInfo",
+              "method": "GET"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/dstInfo"
+          }
+        ],
+        "name": "lst-minter-api-dev-dstInfo",
+        "package": {},
+        "memory": 1024,
+        "timeout": 30,
+        "runtime": "nodejs24.x",
+        "vpc": {},
+        "versionLogicalId": "DstInfoLambdaVersionO8epjfJ0cW9rJdkKXtFgcAAtycN7JsAquw0tXE4rrTg"
+      },
+      "stake": {
+        "handler": "src/index.stake",
+        "timeout": 60,
+        "events": [
+          {
+            "httpApi": {
+              "path": "/stake",
+              "method": "GET"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/stake"
+          }
+        ],
+        "name": "lst-minter-api-dev-stake",
+        "package": {},
+        "memory": 1024,
+        "runtime": "nodejs24.x",
+        "vpc": {},
+        "versionLogicalId": "StakeLambdaVersion9cnzZ5ADV3wkCCDJq0J55dSn1eZXyHYCoUwSGs6Xe1I"
+      }
+    },
+    "configValidationMode": "warn",
+    "serviceFilename": "serverless.yml",
+    "initialServerlessConfig": {
+      "service": "lst-minter-api",
+      "frameworkVersion": "3",
+      "useDotenv": true,
+      "dotenv": {
+        "path": ".env.dev"
+      },
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      },
+      "custom": {
+        "$ref": "$[\"service\"][\"custom\"]"
+      },
+      "provider": {
+        "$ref": "$[\"service\"][\"provider\"]"
+      },
+      "functions": {
+        "$ref": "$[\"service\"][\"functions\"]"
+      }
+    },
+    "layers": {}
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z",
+    "artifact": "lst-minter-api.zip"
+  }
+}
