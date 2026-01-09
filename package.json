@@ -6,9 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach --all --topological run build",
-    "dev": "yarn workspace example run dev",
-    "api": "yarn workspace @the-vault/lst-minter-api run start"
+    "build": "bun run --filter '*' --topo build",
+    "dev": "bun run --filter example dev",
+    "api": "bun run --filter @the-vault/lst-minter-api start"
   },
   "packageManager": "yarn@4.6.0",
   "dependencies": {
@@ -20,5 +20,8 @@
     "@types/express": "^5.0.0",
     "patch-package": "^8.0.0",
     "vite-plugin-svgr": "^4.3.0"
+  },
+  "patchedDependencies": {
+    "@thevault/dst@3.0.1": "patches/@thevault%2Fdst@3.0.1.patch"
   }
 }
