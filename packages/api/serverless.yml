@@ -2,14 +2,14 @@ service: lst-minter-api
 frameworkVersion: "3"
 
 useDotenv: true
-dotenv:
-  path: .env.${opt:stage, 'dev'}
 
 plugins:
   - serverless-esbuild
   - serverless-offline
-
+  - serverless-dotenv-plugin
 custom:
+  dotenv:
+    path: .env.${opt:stage, 'dev'}
   stage: ${opt:stage, 'dev'}
   corsAllowedOrigin:
     dev:

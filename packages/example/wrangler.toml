@@ -1,0 +1,9 @@
+name = "lst-minter-example"
+main = "src/worker.ts"
+compatibility_date = "2025-01-23"
+
+assets = { binding = "ASSETS", directory = "./dist", serve_single_page_app = true }
+
+[build]
+command = "bun run build"
+cwd = "."

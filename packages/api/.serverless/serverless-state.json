@@ -8,15 +8,13 @@
       "name": "aws",
       "runtime": "nodejs24.x",
       "region": "us-east-1",
-      "stage": "dev",
+      "stage": "production",
       "memorySize": 1024,
       "timeout": 30,
       "httpApi": {
         "cors": {
           "allowedOrigins": [
-            "http://localhost:8000",
-            "https://localhost:8000",
-            "http://localhost:5173"
+            "https://app.example.com"
           ],
           "allowedMethods": [
             "GET",
@@ -30,19 +28,20 @@
         }
       },
       "environment": {
-        "STAGE": "dev",
+        "STAGE": "production",
         "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
         "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
         "CORS_ALLOWED_ORIGIN": {
           "Fn::Join": [
             ",",
             [
-              "http://localhost:8000",
-              "https://localhost:8000",
-              "http://localhost:5173"
+              "https://app.example.com"
             ]
           ]
-        }
+        },
+        "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
+        "PORT": "80",
+        "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
       },
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
@@ -121,19 +120,19 @@
           "BalanceLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/lst-minter-api-dev-balance"
+              "LogGroupName": "/aws/lambda/lst-minter-api-production-balance"
             }
           },
           "DstInfoLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/lst-minter-api-dev-dstInfo"
+              "LogGroupName": "/aws/lambda/lst-minter-api-production-dstInfo"
             }
           },
           "StakeLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/lst-minter-api-dev-stake"
+              "LogGroupName": "/aws/lambda/lst-minter-api-production-stake"
             }
           },
           "IamRoleLambdaExecution": {
@@ -162,7 +161,7 @@
                       "-",
                       [
                         "lst-minter-api",
-                        "dev",
+                        "production",
                         "lambda"
                       ]
                     ]
@@ -179,7 +178,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/lst-minter-api-dev*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/lst-minter-api-production*:*"
                           }
                         ]
                       },
@@ -190,7 +189,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/lst-minter-api-dev*:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/lst-minter-api-production*:*:*"
                           }
                         ]
                       }
@@ -204,7 +203,7 @@
                   "-",
                   [
                     "lst-minter-api",
-                    "dev",
+                    "production",
                     {
                       "Ref": "AWS::Region"
                     },
@@ -221,21 +220,24 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z/lst-minter-api.zip"
+                "S3Key": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z/lst-minter-api.zip"
               },
               "Handler": "src/index.balance",
               "Runtime": "nodejs24.x",
-              "FunctionName": "lst-minter-api-dev-balance",
+              "FunctionName": "lst-minter-api-production-balance",
               "MemorySize": 1024,
               "Timeout": 30,
               "Environment": {
                 "Variables": {
-                  "STAGE": "dev",
+                  "STAGE": "production",
                   "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
                   "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
                   "CORS_ALLOWED_ORIGIN": {
                     "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
-                  }
+                  },
+                  "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
+                  "PORT": "80",
+                  "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
                 }
               },
               "Role": {
@@ -256,21 +258,24 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z/lst-minter-api.zip"
+                "S3Key": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z/lst-minter-api.zip"
               },
               "Handler": "src/index.dstInfo",
               "Runtime": "nodejs24.x",
-              "FunctionName": "lst-minter-api-dev-dstInfo",
+              "FunctionName": "lst-minter-api-production-dstInfo",
               "MemorySize": 1024,
               "Timeout": 30,
               "Environment": {
                 "Variables": {
-                  "STAGE": "dev",
+                  "STAGE": "production",
                   "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
                   "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
                   "CORS_ALLOWED_ORIGIN": {
                     "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
-                  }
+                  },
+                  "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
+                  "PORT": "80",
+                  "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
                 }
               },
               "Role": {
@@ -291,21 +296,24 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z/lst-minter-api.zip"
+                "S3Key": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z/lst-minter-api.zip"
               },
               "Handler": "src/index.stake",
               "Runtime": "nodejs24.x",
-              "FunctionName": "lst-minter-api-dev-stake",
+              "FunctionName": "lst-minter-api-production-stake",
               "MemorySize": 1024,
               "Timeout": 60,
               "Environment": {
                 "Variables": {
-                  "STAGE": "dev",
+                  "STAGE": "production",
                   "RPC_URL": "https://mainnet.helius-rpc.com/?api-key=50e88941-e6df-41eb-ad29-d8a2ac414288",
                   "HELIUS_API_KEY": "50e88941-e6df-41eb-ad29-d8a2ac414288",
                   "CORS_ALLOWED_ORIGIN": {
                     "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
-                  }
+                  },
+                  "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
+                  "PORT": "80",
+                  "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
                 }
               },
               "Role": {
@@ -319,7 +327,7 @@
               "StakeLogGroup"
             ]
           },
-          "BalanceLambdaVersionE9AyVMcVATcZ88sMYgg6iXkbHC5dtjxMXUPxqEECrko": {
+          "BalanceLambdaVersiongB6VP7cGhGmEvetrPqCBZNe110la8NqZZZFNbFMRf70": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -329,7 +337,7 @@
               "CodeSha256": "BnqZYtnlYMXDT/LJQRSXCKYBxrFIrk3lT1muDUdS+NU="
             }
           },
-          "DstInfoLambdaVersionO8epjfJ0cW9rJdkKXtFgcAAtycN7JsAquw0tXE4rrTg": {
+          "DstInfoLambdaVersion1wiq4kXaKOrq1wJsf7BIR6QqTco89tQe9vP3CrwRpLg": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -339,7 +347,7 @@
               "CodeSha256": "BnqZYtnlYMXDT/LJQRSXCKYBxrFIrk3lT1muDUdS+NU="
             }
           },
-          "StakeLambdaVersion9cnzZ5ADV3wkCCDJq0J55dSn1eZXyHYCoUwSGs6Xe1I": {
+          "StakeLambdaVersionKpZdZWC9G0xDGuKQCf4joJVp96XxQ72MOhSkfV0O0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -352,7 +360,7 @@
           "HttpApi": {
             "Type": "AWS::ApiGatewayV2::Api",
             "Properties": {
-              "Name": "dev-lst-minter-api",
+              "Name": "production-lst-minter-api",
               "ProtocolType": "HTTP",
               "CorsConfiguration": {
                 "AllowCredentials": true,
@@ -365,9 +373,7 @@
                   "OPTIONS"
                 ],
                 "AllowOrigins": [
-                  "http://localhost:8000",
-                  "https://localhost:8000",
-                  "http://localhost:5173"
+                  "https://app.example.com"
                 ]
               }
             }
@@ -608,34 +614,34 @@
               "Ref": "ServerlessDeploymentBucket"
             },
             "Export": {
-              "Name": "sls-lst-minter-api-dev-ServerlessDeploymentBucketName"
+              "Name": "sls-lst-minter-api-production-ServerlessDeploymentBucketName"
             }
           },
           "BalanceLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "BalanceLambdaVersionE9AyVMcVATcZ88sMYgg6iXkbHC5dtjxMXUPxqEECrko"
+              "Ref": "BalanceLambdaVersiongB6VP7cGhGmEvetrPqCBZNe110la8NqZZZFNbFMRf70"
             },
             "Export": {
-              "Name": "sls-lst-minter-api-dev-BalanceLambdaFunctionQualifiedArn"
+              "Name": "sls-lst-minter-api-production-BalanceLambdaFunctionQualifiedArn"
             }
           },
           "DstInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "DstInfoLambdaVersionO8epjfJ0cW9rJdkKXtFgcAAtycN7JsAquw0tXE4rrTg"
+              "Ref": "DstInfoLambdaVersion1wiq4kXaKOrq1wJsf7BIR6QqTco89tQe9vP3CrwRpLg"
             },
             "Export": {
-              "Name": "sls-lst-minter-api-dev-DstInfoLambdaFunctionQualifiedArn"
+              "Name": "sls-lst-minter-api-production-DstInfoLambdaFunctionQualifiedArn"
             }
           },
           "StakeLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "StakeLambdaVersion9cnzZ5ADV3wkCCDJq0J55dSn1eZXyHYCoUwSGs6Xe1I"
+              "Ref": "StakeLambdaVersionKpZdZWC9G0xDGuKQCf4joJVp96XxQ72MOhSkfV0O0"
             },
             "Export": {
-              "Name": "sls-lst-minter-api-dev-StakeLambdaFunctionQualifiedArn"
+              "Name": "sls-lst-minter-api-production-StakeLambdaFunctionQualifiedArn"
             }
           },
           "HttpApiId": {
@@ -644,7 +650,7 @@
               "Ref": "HttpApi"
             },
             "Export": {
-              "Name": "sls-lst-minter-api-dev-HttpApiId"
+              "Name": "sls-lst-minter-api-production-HttpApiId"
             }
           },
           "HttpApiUrl": {
@@ -669,7 +675,7 @@
               ]
             },
             "Export": {
-              "Name": "sls-lst-minter-api-dev-HttpApiUrl"
+              "Name": "sls-lst-minter-api-production-HttpApiUrl"
             }
           }
         }
@@ -759,7 +765,10 @@
       "vpc": {}
     },
     "custom": {
-      "stage": "dev",
+      "dotenv": {
+        "path": ".env.production"
+      },
+      "stage": "production",
       "corsAllowedOrigin": {
         "dev": [
           "http://localhost:8000",
@@ -782,7 +791,8 @@
     },
     "plugins": [
       "serverless-esbuild",
-      "serverless-offline"
+      "serverless-offline",
+      "serverless-dotenv-plugin"
     ],
     "pluginsData": {},
     "functions": {
@@ -798,13 +808,13 @@
             "resolvedPath": "/balance"
           }
         ],
-        "name": "lst-minter-api-dev-balance",
+        "name": "lst-minter-api-production-balance",
         "package": {},
         "memory": 1024,
         "timeout": 30,
         "runtime": "nodejs24.x",
         "vpc": {},
-        "versionLogicalId": "BalanceLambdaVersionE9AyVMcVATcZ88sMYgg6iXkbHC5dtjxMXUPxqEECrko"
+        "versionLogicalId": "BalanceLambdaVersiongB6VP7cGhGmEvetrPqCBZNe110la8NqZZZFNbFMRf70"
       },
       "dstInfo": {
         "handler": "src/index.dstInfo",
@@ -818,13 +828,13 @@
             "resolvedPath": "/dstInfo"
           }
         ],
-        "name": "lst-minter-api-dev-dstInfo",
+        "name": "lst-minter-api-production-dstInfo",
         "package": {},
         "memory": 1024,
         "timeout": 30,
         "runtime": "nodejs24.x",
         "vpc": {},
-        "versionLogicalId": "DstInfoLambdaVersionO8epjfJ0cW9rJdkKXtFgcAAtycN7JsAquw0tXE4rrTg"
+        "versionLogicalId": "DstInfoLambdaVersion1wiq4kXaKOrq1wJsf7BIR6QqTco89tQe9vP3CrwRpLg"
       },
       "stake": {
         "handler": "src/index.stake",
@@ -839,12 +849,12 @@
             "resolvedPath": "/stake"
           }
         ],
-        "name": "lst-minter-api-dev-stake",
+        "name": "lst-minter-api-production-stake",
         "package": {},
         "memory": 1024,
         "runtime": "nodejs24.x",
         "vpc": {},
-        "versionLogicalId": "StakeLambdaVersion9cnzZ5ADV3wkCCDJq0J55dSn1eZXyHYCoUwSGs6Xe1I"
+        "versionLogicalId": "StakeLambdaVersionKpZdZWC9G0xDGuKQCf4joJVp96XxQ72MOhSkfV0O0"
       }
     },
     "configValidationMode": "warn",
@@ -853,9 +863,6 @@
       "service": "lst-minter-api",
       "frameworkVersion": "3",
       "useDotenv": true,
-      "dotenv": {
-        "path": ".env.dev"
-      },
       "plugins": {
         "$ref": "$[\"service\"][\"plugins\"]"
       },
@@ -872,7 +879,7 @@
     "layers": {}
   },
   "package": {
-    "artifactDirectoryName": "serverless/lst-minter-api/dev/1767932579392-2026-01-09T04:22:59.392Z",
+    "artifactDirectoryName": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z",
     "artifact": "lst-minter-api.zip"
   }
 }

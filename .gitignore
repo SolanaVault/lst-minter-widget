@@ -39,6 +39,7 @@ packages/**/.cache
 .env
 .env.local
 .env.*.local
+.env.production
 
 # But do not ignore .env.local.example
 !.env.local.example
