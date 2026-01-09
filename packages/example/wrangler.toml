@@ -1,4 +1,4 @@
-name = "lst-minter-example"
+name = "lst-minter-demo"
 main = "src/worker.ts"
 compatibility_date = "2025-01-23"
 

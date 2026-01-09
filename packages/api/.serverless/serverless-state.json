@@ -14,7 +14,8 @@
       "httpApi": {
         "cors": {
           "allowedOrigins": [
-            "https://app.example.com"
+            "https://lst-minter-example.matt-mccarn.workers.dev",
+            "https://lst-minter-demo.pages.dev"
           ],
           "allowedMethods": [
             "GET",
@@ -35,12 +36,13 @@
           "Fn::Join": [
             ",",
             [
-              "https://app.example.com"
+              "https://lst-minter-example.matt-mccarn.workers.dev",
+              "https://lst-minter-demo.pages.dev"
             ]
           ]
         },
         "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
-        "PORT": "80",
+        "PORT": "3001",
         "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
       },
       "versionFunctions": true,
@@ -220,7 +222,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z/lst-minter-api.zip"
+                "S3Key": "serverless/lst-minter-api/production/1767936867864-2026-01-09T05:34:27.864Z/lst-minter-api.zip"
               },
               "Handler": "src/index.balance",
               "Runtime": "nodejs24.x",
@@ -236,7 +238,7 @@
                     "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
                   },
                   "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
-                  "PORT": "80",
+                  "PORT": "3001",
                   "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
                 }
               },
@@ -258,7 +260,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z/lst-minter-api.zip"
+                "S3Key": "serverless/lst-minter-api/production/1767936867864-2026-01-09T05:34:27.864Z/lst-minter-api.zip"
               },
               "Handler": "src/index.dstInfo",
               "Runtime": "nodejs24.x",
@@ -274,7 +276,7 @@
                     "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
                   },
                   "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
-                  "PORT": "80",
+                  "PORT": "3001",
                   "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
                 }
               },
@@ -296,7 +298,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z/lst-minter-api.zip"
+                "S3Key": "serverless/lst-minter-api/production/1767936867864-2026-01-09T05:34:27.864Z/lst-minter-api.zip"
               },
               "Handler": "src/index.stake",
               "Runtime": "nodejs24.x",
@@ -312,7 +314,7 @@
                     "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"CORS_ALLOWED_ORIGIN\"]"
                   },
                   "CORS_ORIGIN": "https://lst-minter-example.matt-mccarn.workers.dev",
-                  "PORT": "80",
+                  "PORT": "3001",
                   "HOST": "https://agx6igui81.execute-api.us-east-1.amazonaws.com"
                 }
               },
@@ -327,7 +329,7 @@
               "StakeLogGroup"
             ]
           },
-          "BalanceLambdaVersiongB6VP7cGhGmEvetrPqCBZNe110la8NqZZZFNbFMRf70": {
+          "BalanceLambdaVersion6OG0y0MyhuB2Mfz7C4i4gdzyiVeaQqLFAbKVIQmgo": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -337,7 +339,7 @@
               "CodeSha256": "BnqZYtnlYMXDT/LJQRSXCKYBxrFIrk3lT1muDUdS+NU="
             }
           },
-          "DstInfoLambdaVersion1wiq4kXaKOrq1wJsf7BIR6QqTco89tQe9vP3CrwRpLg": {
+          "DstInfoLambdaVersionlKP2APViyrVld3BNvAkHMNMq0EJRPxESW6CaZjEzv4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -347,7 +349,7 @@
               "CodeSha256": "BnqZYtnlYMXDT/LJQRSXCKYBxrFIrk3lT1muDUdS+NU="
             }
           },
-          "StakeLambdaVersionKpZdZWC9G0xDGuKQCf4joJVp96XxQ72MOhSkfV0O0": {
+          "StakeLambdaVersionRDXNiUZkqQeBmcelCr2CLu5dtLK2ZEunP3wHQVw1w": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -373,7 +375,8 @@
                   "OPTIONS"
                 ],
                 "AllowOrigins": [
-                  "https://app.example.com"
+                  "https://lst-minter-example.matt-mccarn.workers.dev",
+                  "https://lst-minter-demo.pages.dev"
                 ]
               }
             }
@@ -620,7 +623,7 @@
           "BalanceLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "BalanceLambdaVersiongB6VP7cGhGmEvetrPqCBZNe110la8NqZZZFNbFMRf70"
+              "Ref": "BalanceLambdaVersion6OG0y0MyhuB2Mfz7C4i4gdzyiVeaQqLFAbKVIQmgo"
             },
             "Export": {
               "Name": "sls-lst-minter-api-production-BalanceLambdaFunctionQualifiedArn"
@@ -629,7 +632,7 @@
           "DstInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "DstInfoLambdaVersion1wiq4kXaKOrq1wJsf7BIR6QqTco89tQe9vP3CrwRpLg"
+              "Ref": "DstInfoLambdaVersionlKP2APViyrVld3BNvAkHMNMq0EJRPxESW6CaZjEzv4"
             },
             "Export": {
               "Name": "sls-lst-minter-api-production-DstInfoLambdaFunctionQualifiedArn"
@@ -638,7 +641,7 @@
           "StakeLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "StakeLambdaVersionKpZdZWC9G0xDGuKQCf4joJVp96XxQ72MOhSkfV0O0"
+              "Ref": "StakeLambdaVersionRDXNiUZkqQeBmcelCr2CLu5dtLK2ZEunP3wHQVw1w"
             },
             "Export": {
               "Name": "sls-lst-minter-api-production-StakeLambdaFunctionQualifiedArn"
@@ -776,7 +779,8 @@
           "http://localhost:5173"
         ],
         "production": [
-          "https://app.example.com"
+          "https://lst-minter-example.matt-mccarn.workers.dev",
+          "https://lst-minter-demo.pages.dev"
         ]
       },
       "esbuild": {
@@ -814,7 +818,7 @@
         "timeout": 30,
         "runtime": "nodejs24.x",
         "vpc": {},
-        "versionLogicalId": "BalanceLambdaVersiongB6VP7cGhGmEvetrPqCBZNe110la8NqZZZFNbFMRf70"
+        "versionLogicalId": "BalanceLambdaVersion6OG0y0MyhuB2Mfz7C4i4gdzyiVeaQqLFAbKVIQmgo"
       },
       "dstInfo": {
         "handler": "src/index.dstInfo",
@@ -834,7 +838,7 @@
         "timeout": 30,
         "runtime": "nodejs24.x",
         "vpc": {},
-        "versionLogicalId": "DstInfoLambdaVersion1wiq4kXaKOrq1wJsf7BIR6QqTco89tQe9vP3CrwRpLg"
+        "versionLogicalId": "DstInfoLambdaVersionlKP2APViyrVld3BNvAkHMNMq0EJRPxESW6CaZjEzv4"
       },
       "stake": {
         "handler": "src/index.stake",
@@ -854,7 +858,7 @@
         "memory": 1024,
         "runtime": "nodejs24.x",
         "vpc": {},
-        "versionLogicalId": "StakeLambdaVersionKpZdZWC9G0xDGuKQCf4joJVp96XxQ72MOhSkfV0O0"
+        "versionLogicalId": "StakeLambdaVersionRDXNiUZkqQeBmcelCr2CLu5dtLK2ZEunP3wHQVw1w"
       }
     },
     "configValidationMode": "warn",
@@ -879,7 +883,7 @@
     "layers": {}
   },
   "package": {
-    "artifactDirectoryName": "serverless/lst-minter-api/production/1767934944148-2026-01-09T05:02:24.148Z",
+    "artifactDirectoryName": "serverless/lst-minter-api/production/1767936867864-2026-01-09T05:34:27.864Z",
     "artifact": "lst-minter-api.zip"
   }
 }

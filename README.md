@@ -18,38 +18,34 @@ bun run build
 
 Copy `packages/api/.env.example` to `packages/api/.env.dev` (or `.env.production`) and set `RPC_URL`, `HELIUS_API_KEY`, and any custom CORS origins. The Serverless config automatically loads `.env.<stage>` when you deploy or run offline. For the example app, create `packages/example/.env` (or `.env.local`) that sets `VITE_RPC_URL` and `VITE_API_URL` so Vite can reach your API.
 
-Start the API locally via Serverless Offline:
-
-```bash
-bun run api
-```
-
 Then start the example app:
+
+set `VITE_API_URL` to https://nmm6tyeuq3.execute-api.us-east-1.amazonaws.com
 
 ```bash
 bun run dev
 ```
 
+
 You should be able to mint an LST with the widget at http://localhost:5173.
-
-
-## Using the widget in your own app 
-
-The first step is to deploy the API server. You can set the CORs origin to the domain of your app in the
-environment variable `CORS_ORIGIN`.
-
-Deploy the API with Serverless:
-
-```bash
-cd packages/api
-bunx serverless deploy --stage dev
-```
 
 The example app ships with `wrangler.toml`, so you can deploy it to Cloudflare Workers Sites:
 
 ```bash
 cd packages/example
 bun run deploy
+```
+
+## Using the widget in your own app 
+
+The first step is to deploy the API server. You can set the CORs origin to the domain of your app in the
+serverless config in `packages/api/serverless.yml`.
+
+Deploy the API with Serverless:
+
+```bash
+cd packages/api
+bunx serverless deploy --stage dev
 ```
 
 Then you can include the widget in your app. Import the package locally or from npm
@@ -92,7 +88,7 @@ import "@the-vault/lst-minter-widget/styles.css";
 ```
 
 After this line you can import additional .css that overrides these styles. Or, you can copy the file and 
-modify it to your liking. If you are only interested in adapting the colors, there are vairables in the root
+modify it to your liking. If you are only interested in adapting the colors, there are variables in the root
 element at the top of the file.
 
 ## Demo
