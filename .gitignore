@@ -39,6 +39,7 @@ packages/**/.cache
 .env
 .env.local
 .env.*.local
+.env.production
 
 # But do not ignore .env.local.example
 !.env.local.example
@@ -47,3 +48,4 @@ packages/**/.cache
 # Ignore test artifacts
 jest-cache/
 *.tsbuildinfo
+.serverless

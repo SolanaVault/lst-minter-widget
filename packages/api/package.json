@@ -7,12 +7,11 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "tsc && bun ./dist/index.js"
+    "start": "serverless offline --stage dev"
   },
   "private": true,
   "dependencies": {
     "@coral-xyz/anchor": "0.30.1",
-    "@fastify/cors": "^10.0.2",
     "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
     "@metaplex-foundation/umi": "^0.9.2",
     "@metaplex-foundation/umi-bundle-defaults": "^0.9.2",
@@ -25,13 +24,17 @@
     "bn.js": "^5.2.1",
     "bs58": "^6.0.0",
     "dotenv": "^16.4.7",
-    "fastify": "^5.2.1",
+    "serverless-dotenv-plugin": "^6.0.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.138",
     "@thevault/directed-stake": "1.2.1",
     "@types/bn.js": "^5",
-    "fastify-tsconfig": "^3.0.0",
+    "esbuild": "^0.24.2",
+    "serverless": "^3.38.0",
+    "serverless-esbuild": "^1.52.1",
+    "serverless-offline": "^13.6.0",
     "typescript": "^5.7.3",
     "vite": "^6.1.0"
   }

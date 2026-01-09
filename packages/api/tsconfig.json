@@ -7,7 +7,6 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "declarationMap": true,
-    "module": "ESNext",
     "resolveJsonModule": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

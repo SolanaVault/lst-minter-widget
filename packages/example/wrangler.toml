@@ -1,0 +1,12 @@
+name = "lst-minter-demo"
+main = "src/worker.ts"
+compatibility_date = "2025-01-23"
+
+assets = { binding = "ASSETS", directory = "./dist", not_found_handling = "single-page-application"}
+routes = [
+    { pattern = "direct-stake-example.vaultapi.dev", custom_domain = true }
+]
+
+[build]
+command = "bun run build"
+cwd = "."

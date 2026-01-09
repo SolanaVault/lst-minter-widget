@@ -1,0 +1,77 @@
+service: lst-minter-api
+frameworkVersion: "3"
+
+useDotenv: true
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+  - serverless-dotenv-plugin
+custom:
+  dotenv:
+    path: .env.${opt:stage, 'dev'}
+  stage: ${opt:stage, 'dev'}
+  corsAllowedOrigin:
+    dev:
+      - http://localhost:8000
+      - https://localhost:8000
+      - http://localhost:5173
+    production:
+      # Replace with the actual production hosts before deploying
+      - https://lst-minter-example.matt-mccarn.workers.dev
+      - https://lst-minter-demo.pages.dev 
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: false
+    target: node24
+    platform: node
+    keepNames: true
+    tsconfig: tsconfig.json
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  region: us-east-1
+  stage: ${self:custom.stage}
+  memorySize: 1024
+  timeout: 30
+  httpApi:
+    cors:
+      allowedOrigins: ${self:custom.corsAllowedOrigin.${self:custom.stage}}
+      allowedMethods:
+        - GET
+        - OPTIONS
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowCredentials: true
+  environment:
+    STAGE: ${self:custom.stage}
+    RPC_URL: ${env:RPC_URL}
+    HELIUS_API_KEY: ${env:HELIUS_API_KEY}
+    CORS_ALLOWED_ORIGIN:
+      Fn::Join:
+        - ","
+        - ${self:custom.corsAllowedOrigin.${self:custom.stage}}
+
+functions:
+  balance:
+    handler: src/index.balance
+    events:
+      - httpApi:
+          path: /balance
+          method: GET
+  dstInfo:
+    handler: src/index.dstInfo
+    events:
+      - httpApi:
+          path: /dstInfo
+          method: GET
+  stake:
+    handler: src/index.stake
+    timeout: 60
+    events:
+      - httpApi:
+          path: /stake
+          method: GET
