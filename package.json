@@ -22,6 +22,7 @@
     "vite-plugin-svgr": "^4.3.0"
   },
   "patchedDependencies": {
-    "@thevault/dst@3.0.1": "patches/@thevault%2Fdst@3.0.1.patch"
+    "@thevault/dst@3.0.1": "patches/@thevault%2Fdst@3.0.1.patch",
+    "@coral-xyz/anchor@0.30.1": "patches/@coral-xyz%2Fanchor@0.30.1.patch"
   }
 }

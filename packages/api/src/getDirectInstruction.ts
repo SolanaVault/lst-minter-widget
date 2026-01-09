@@ -2,9 +2,9 @@ import { buildDirectTX, DIRECTED_STAKE_PROGRAM_ID, makeDirectedStakeProgram } fr
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { findDirectorAddress } from '@thevault/directed-stake';
 import { AnchorProvider } from '@coral-xyz/anchor';
-import NodeWalletRaw from '@coral-xyz/anchor/dist/cjs/nodewallet.js';
-// @ts-ignore
-const NodeWallet = NodeWalletRaw.default;
+import { NodeWallet } from "@coral-xyz/anchor/dist/esm/nodewallet.js";
+
+const wallet = new NodeWallet(Keypair.generate());
 
 export async function getDirectInstruction(owner: string, target: string, connection: Connection) {
     const directorAddress = findDirectorAddress(new PublicKey(owner));

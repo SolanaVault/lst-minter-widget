@@ -1,0 +1,32 @@
+diff --git a/dist/cjs/nodewallet.js b/dist/cjs/nodewallet.js
+index 706a70b26f719c1b2422fdde925dfdf4ac8e5491..2d8c166c0429db0d89753b3a6aa8b1387c570e95 100644
+--- a/dist/cjs/nodewallet.js
++++ b/dist/cjs/nodewallet.js
+@@ -46,3 +46,5 @@ class NodeWallet {
+ }
+ exports.default = NodeWallet;
+ //# sourceMappingURL=nodewallet.js.map
++const _nodewallet = require("./nodewallet.js");
++exports.NodeWallet = _nodewallet.default ?? _nodewallet;
+diff --git a/dist/esm/nodewallet.d.ts b/dist/esm/nodewallet.d.ts
+index 0df7b53708508783b145fd3b722c026ee5693da7..bc6dad80f39ca5b6ec1c4bd3bd247803597ccbf8 100644
+--- a/dist/esm/nodewallet.d.ts
++++ b/dist/esm/nodewallet.d.ts
+@@ -11,4 +11,7 @@ export default class NodeWallet implements Wallet {
+     signAllTransactions<T extends Transaction | VersionedTransaction>(txs: T[]): Promise<T[]>;
+     get publicKey(): PublicKey;
+ }
++
++export { default as NodeWallet } from "./nodewallet.js";
++
+ //# sourceMappingURL=nodewallet.d.ts.map
+\ No newline at end of file
+diff --git a/dist/esm/nodewallet.js b/dist/esm/nodewallet.js
+index 215486cb0d6802229ca33a299594b60fc1bf7e3d..a294380a4c5adc6181ed9b56bf71a89eb8210691 100644
+--- a/dist/esm/nodewallet.js
++++ b/dist/esm/nodewallet.js
+@@ -43,3 +43,4 @@ export default class NodeWallet {
+     }
+ }
+ //# sourceMappingURL=nodewallet.js.map
++export { default as NodeWallet } from "./nodewallet.js";
