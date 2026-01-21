@@ -19,7 +19,7 @@ custom:
     production:
       # Replace with the actual production hosts before deploying
       - https://lst-minter-example.matt-mccarn.workers.dev
-      - https://lst-minter-demo.pages.dev 
+      - https://direct-stake-example.vaultapi.dev
   esbuild:
     bundle: true
     minify: false

@@ -80,6 +80,59 @@ Processing is a way you to tell the widget that you are working on the transacti
 a Tx is being built. That is the only way for you to know that the button has been clicked. You can set a timeout while you
 wait for the onTxReady to be called. The api is the base url where you deployed the API package.
 
+## Unstaking
+
+The widget also supports unstaking vSOL back to SOL. Unstaking uses The Vault's liquid unstake pool for instant redemption. If there is not enough liquidity in the pool, the transaction will automatically fall back to Jupiter for the swap.
+
+To enable unstaking in your widget, pass the `mode` and `onModeChange` props:
+
+```tsx
+const [mode, setMode] = useState<Mode>("stake");
+
+<LstMinterWidget
+        onButtonPress={() => {
+          setPreparing(true);
+          setTimeout(() => {
+            setPreparing(false);
+          }, 10000);
+        }}
+        onTxReady={({ transaction }) =>
+          sendTransaction(transaction)
+        }
+        api={api}
+        processing={preparing || processing}
+        mint={"vSoLxydx6akxyMD9XEcPvGYNGq6Nn66oqVb3UkGkei7"}
+        target={"gridZ5cMHjWGktAQt6o36NtF7XSv19nJBrW83zmo7BM"}
+        address={publicKey?.toBase58()}
+        mode={mode}
+        onModeChange={setMode}
+/>
+```
+
+Import the `Mode` type from the package:
+
+```tsx
+import { LstMinterWidget, Mode } from "@the-vault/lst-minter-widget";
+```
+
+### Unstake API Endpoint
+
+The unstake endpoint accepts the following parameters:
+
+```
+GET /unstake?address={walletAddress}&amount={amountInLamports}
+```
+
+| Parameter | Description                                 |
+|-----------|---------------------------------------------|
+| `address` | The user's wallet public key                |
+| `amount`  | The amount of vSOL to unstake in raw units) |
+
+Example:
+```
+/unstake?address=fZC5MYfVrsKEjs1ydtndWpTtReW6JzV4gMEkQPHnLim&amount=700000
+```
+
 ## Styling the app
 You can import styles.css from the package at the top of your App.tsx in your react application.
 

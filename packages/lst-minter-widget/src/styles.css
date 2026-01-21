@@ -199,3 +199,36 @@
   justify-content: space-between;
   gap: 0.5rem;
 }
+
+/* Mode toggle styles */
+.mode-toggle {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mode-button {
+  flex: 1;
+  background: transparent;
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.mode-button.active {
+  background: var(--primary);
+  color: var(--dark-bg);
+  border-color: var(--primary);
+}
+

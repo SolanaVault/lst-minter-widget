@@ -1,10 +1,12 @@
 import { BigInputTokenAmount } from "./inputs/TokenInput";
 import BigNumber from "bignumber.js";
-import { SOL_TOKEN_INFO } from "./constants.js";
+import { SOL_TOKEN_INFO, VSOL_TOKEN_INFO } from "./constants.js";
 import React from "react";
 import useBalance from "./hooks/useBalance";
 import { useDstInfo } from "./hooks/useDstInfo";
 import useTokenInfo from "./hooks/useTokenInfo";
+
+export type Mode = "stake" | "unstake";
 
 export interface Props {
   mint: string;
@@ -14,6 +16,8 @@ export interface Props {
   address: string | undefined;
   processing: boolean;
   target?: string;
+  mode?: Mode;
+  onModeChange?: (mode: Mode) => void;
 }
 
 export const LstMinterContent = ({
@@ -23,7 +27,9 @@ export const LstMinterContent = ({
   onTxReady,
   address,
   processing,
-  target
+  target,
+  mode = "stake",
+  onModeChange,
 }: Props) => {
   const { data: dstInfo } = useDstInfo(mint, api);
   const { data: token } = useTokenInfo(dstInfo);
@@ -36,23 +42,57 @@ export const LstMinterContent = ({
     raw: BigNumber(0),
   });
 
+  const isStakeMode = mode === "stake";
+  const currentToken = isStakeMode ? SOL_TOKEN_INFO : token || VSOL_TOKEN_INFO;
+  const currentBalance = isStakeMode ? balance?.sol : balance?.lst;
+
   const getTx = async () => {
-    // Call the stake API
-    const result = await fetch(
-      api +
-        `/stake?address=${address}&mint=${mint}&amount=${amount?.raw}&balance=${balance.sol.amount}${target ? `&target=${target}` : ""}`,
-    );
-    return await result.json();
+    if (isStakeMode) {
+      // Call the stake API
+      const result = await fetch(
+        api +
+          `/stake?address=${address}&mint=${mint}&amount=${amount?.raw}&balance=${balance.sol.amount}${target ? `&target=${target}` : ""}`,
+      );
+      return await result.json();
+    } else {
+      // Call the unstake API
+      const result = await fetch(
+        api + `/unstake?address=${address}&amount=${amount?.raw}`,
+      );
+      return await result.json();
+    }
   };
 
   return (
     <div className="card">
+      {onModeChange && (
+        <div className="mode-toggle">
+          <button
+            className={`mode-button ${isStakeMode ? "active" : ""}`}
+            onClick={() => {
+              onModeChange("stake");
+              setAmount({ uiAmount: "0", raw: BigNumber(0) });
+            }}
+          >
+            Stake
+          </button>
+          <button
+            className={`mode-button ${!isStakeMode ? "active" : ""}`}
+            onClick={() => {
+              onModeChange("unstake");
+              setAmount({ uiAmount: "0", raw: BigNumber(0) });
+            }}
+          >
+            Unstake
+          </button>
+        </div>
+      )}
       <div className="input-section">
         <div className="balance">
           <div>Available Balance:</div>
           <div className="balance-amount">
-            {balance
-              ? balance.sol.uiAmount.toLocaleString() + " SOL"
+            {currentBalance
+              ? currentBalance.uiAmount.toLocaleString() + " " + currentToken.symbol
               : "Loading..."}
           </div>
         </div>
@@ -60,13 +100,16 @@ export const LstMinterContent = ({
           <BigInputTokenAmount
             setAmount={setAmount}
             uiAmount={amount?.uiAmount}
-            maxAmount={balance.sol.amount.minus(BigNumber("1000000"))} //subtract 0.001 SOL for fees
-            token={SOL_TOKEN_INFO}
+            maxAmount={isStakeMode
+              ? balance.sol.amount.minus(BigNumber("1000000")) // subtract 0.001 SOL for fees
+              : balance.lst.amount
+            }
+            token={currentToken}
           />
         )}
       </div>
       <button
-        disabled={address === undefined || processing ||   amount?.raw?.eq(BigNumber(0))}
+        disabled={address === undefined || processing || amount?.raw?.eq(BigNumber(0))}
         onClick={async () => {
           if (!address || amount.raw.eq(BigNumber(0))) {
             return;
@@ -76,7 +119,7 @@ export const LstMinterContent = ({
         }}
         className="big-button"
       >
-        {processing ? "Processing..." : "Stake"}
+        {processing ? "Processing..." : isStakeMode ? "Stake" : "Unstake"}
       </button>
     </div>
   );

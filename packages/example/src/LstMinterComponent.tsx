@@ -1,5 +1,5 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LstMinterWidget } from "@the-vault/lst-minter-widget";
+import { LstMinterWidget, Mode } from "@the-vault/lst-minter-widget";
 import { VersionedTransaction } from "@solana/web3.js";
 import { useState } from "react";
 import { VSOL_MINT } from "@the-vault/lst-minter-api/dist/consts";
@@ -12,6 +12,7 @@ export const LstMinterComponent = () => {
   const api = import.meta.env.VITE_API_URL;
   const [processing, setProccessing] = useState(false);
   const [preparing, setPreparing] = useState(false);
+  const [mode, setMode] = useState<Mode>("stake");
   const { publicKey, wallet } = useWallet();
   const { connection } = useConnection();
   const sendTransaction = async (
@@ -82,6 +83,8 @@ export const LstMinterComponent = () => {
         mint={VSOL_MINT}
         target={DIRECTED_TARGET}
         address={publicKey?.toBase58()}
+        mode={mode}
+        onModeChange={setMode}
       />
     </div>
   );
