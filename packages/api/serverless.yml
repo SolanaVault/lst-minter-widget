@@ -50,6 +50,8 @@ provider:
     STAGE: ${self:custom.stage}
     RPC_URL: ${env:RPC_URL}
     HELIUS_API_KEY: ${env:HELIUS_API_KEY}
+    JUPITER_API_ENDPOINT: ${env:JUPITER_API_ENDPOINT, 'https://api.jup.ag'}
+    JUPITER_API_KEY: ${env:JUPITER_API_KEY, ''}
     CORS_ALLOWED_ORIGIN:
       Fn::Join:
         - ","
@@ -70,8 +72,15 @@ functions:
           method: GET
   stake:
     handler: src/index.stake
-    timeout: 60
+    timeout: 29
     events:
       - httpApi:
           path: /stake
+          method: GET
+  unstake:
+    handler: src/index.unstake
+    timeout: 29
+    events:
+      - httpApi:
+          path: /unstake
           method: GET
